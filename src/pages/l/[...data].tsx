@@ -263,8 +263,14 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
   const extensionId = 'Sarthakischill.codeshare-by-sarthak';
   const vscodeUri = `vscode://${extensionId}/open?repo=${encodeURIComponent(repo)}&file=${encodeURIComponent(file)}&lines=${lines}`;
   
-  // Use the dynamic branch name to construct the raw file URL
-  const rawCodeUrl = `${repo}/raw/${branch}/${file}`;
+  // --- THIS IS THE FIX ---
+  // Before (Incorrect): const rawCodeUrl = `${repo}/raw/${branch}/${file}`;
+  
+  // After (Correct):
+  // 1. Get the path part of the repo URL (e.g., Sarthakischill/codeshare-project)
+  const repoPath = repo.replace('https://github.com/', '');
+  // 2. Construct the direct raw content URL
+  const rawCodeUrl = `https://raw.githubusercontent.com/${repoPath}/${branch}/${file}`;
 
   const linkData: LinkData = { repo, branch, file, lines, vscodeUri, rawCodeUrl };
 
