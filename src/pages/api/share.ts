@@ -1,24 +1,15 @@
-// src/pages/api/share.ts
 import { kv } from '@vercel/kv';
-import { NextApiRequest, NextApiResponse } from 'next';
-import { nanoid } from 'nanoid'; // `npm install nanoid`
-
-// We expect a POST request with the code and language
-interface SharePayload {
-  code: string;
-  language?: string;
-}
+import type { NextApiRequest, NextApiResponse } from 'next';
+import { nanoid } from 'nanoid';
 
 // --- HELPER FUNCTION TO SET CORS HEADERS ---
-const allowCors = (fn: (req: NextApiRequest, res: NextApiResponse) => Promise<void>) => async (req: NextApiRequest, res: NextApiResponse) => {
+const allowCors = (fn: (req: NextApiRequest, res: NextApiResponse) => Promise<void> | void) => async (req: NextApiRequest, res: NextApiResponse) => {
   res.setHeader('Access-Control-Allow-Credentials', 'true')
-  // We can be specific or allow all origins for simplicity during development
-  res.setHeader('Access-Control-Allow-Origin', '*')
-  // Or more securely: res.setHeader('Access-Control-Allow-Origin', 'vscode-file://vscode-app')
+  res.setHeader('Access-Control-Allow-Origin', '*') // Allow all origins
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS')
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type')
 
-  // Handle preflight requests (sent by browsers to check permissions)
+  // Handle preflight requests
   if (req.method === 'OPTIONS') {
     res.status(200).end()
     return
@@ -30,32 +21,31 @@ async function handler(
   req: NextApiRequest,
   res: NextApiResponse,
 ) {
+  // The method check is now implicitly handled by the middleware for OPTIONS
   if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method Not Allowed' });
+      return res.status(405).json({ error: 'Method Not Allowed' });
   }
 
   try {
-    const { code, language = 'plaintext' } = req.body as SharePayload;
+    const { code, language = 'plaintext' } = req.body;
 
-    if (!code) {
-      return res.status(400).json({ error: 'Code snippet cannot be empty.' });
+    if (!code || typeof code !== 'string' || code.trim() === '') {
+      return res.status(400).json({ error: 'Code snippet must be a non-empty string.' });
     }
 
-    // Generate a short, unique ID for this snippet
-    const snippetId = nanoid(8); // e.g., 'yCw8_SoC'
+    const snippetId = nanoid(8);
     const snippetData = { code, language };
     
-    // Store the snippet in Vercel KV with a 24-hour expiration (86400 seconds)
+    // Store in Vercel KV for 24 hours (86400 seconds)
     await kv.set(snippetId, JSON.stringify(snippetData), { ex: 86400 });
 
-    // Return the ID to the client
     return res.status(200).json({ id: snippetId });
 
   } catch (error) {
-    console.error('Error creating snippet:', error);
-    return res.status(500).json({ error: 'Failed to create snippet.' });
+    console.error('API Error in /api/share:', error);
+    return res.status(500).json({ error: 'Failed to create snippet due to a server error.' });
   }
 }
 
-// Wrap the handler with the CORS middleware
+// Wrap the main handler with the CORS middleware
 export default allowCors(handler);
