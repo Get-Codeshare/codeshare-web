@@ -9,7 +9,24 @@ interface SharePayload {
   language?: string;
 }
 
-export default async function handler(
+// --- HELPER FUNCTION TO SET CORS HEADERS ---
+const allowCors = (fn: (req: NextApiRequest, res: NextApiResponse) => Promise<void>) => async (req: NextApiRequest, res: NextApiResponse) => {
+  res.setHeader('Access-Control-Allow-Credentials', 'true')
+  // We can be specific or allow all origins for simplicity during development
+  res.setHeader('Access-Control-Allow-Origin', '*')
+  // Or more securely: res.setHeader('Access-Control-Allow-Origin', 'vscode-file://vscode-app')
+  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS')
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type')
+
+  // Handle preflight requests (sent by browsers to check permissions)
+  if (req.method === 'OPTIONS') {
+    res.status(200).end()
+    return
+  }
+  return await fn(req, res)
+}
+
+async function handler(
   req: NextApiRequest,
   res: NextApiResponse,
 ) {
@@ -39,3 +56,6 @@ export default async function handler(
     return res.status(500).json({ error: 'Failed to create snippet.' });
   }
 }
+
+// Wrap the handler with the CORS middleware
+export default allowCors(handler);
