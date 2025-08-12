@@ -6,6 +6,7 @@ import { atomOneDark } from 'react-syntax-highlighter/dist/cjs/styles/hljs';
 
 interface LinkData {
   repo: string;
+  branch: string; // Added branch
   file: string;
   lines: string;
   vscodeUri: string;
@@ -21,7 +22,9 @@ interface Props {
 const LinkPage: NextPage<Props> = ({ linkData, errorCode }) => {
   const [fallbackVisible, setFallbackVisible] = useState(false);
   const [code, setCode] = useState<string | null>('Loading code...');
+  const [fetchError, setFetchError] = useState<string | null>(null); // New state for errors
   const [copyText, setCopyText] = useState('Copy');
+  const [isHovered, setIsHovered] = useState(false);
 
   useEffect(() => {
     if (!linkData) return;
@@ -31,21 +34,36 @@ const LinkPage: NextPage<Props> = ({ linkData, errorCode }) => {
     const timer = setTimeout(() => {
       setFallbackVisible(true);
       fetch(linkData.rawCodeUrl)
-        .then(res => res.ok ? res.text() : Promise.reject(`Failed to fetch: ${res.statusText}`))
+        .then(res => {
+          if (!res.ok) {
+            // Provide a more specific error message for 404
+            if (res.status === 404) {
+              return Promise.reject('Error: File not found. The repository may be private, the branch could be incorrect, or the file path may have changed.');
+            }
+            return Promise.reject(`Could not fetch code. (HTTP ${res.status})`);
+          }
+          return res.text();
+        })
         .then(text => {
           const linesArr = text.split('\n');
           const [start, end] = linkData.lines.split('-').map(Number);
           const relevantLines = linesArr.slice(start - 1, end).join('\n');
           setCode(relevantLines);
+          setFetchError(null); // Clear any previous errors on success
         })
-        .catch(() => setCode('Could not fetch code. The repository might be private or the branch/file does not exist.'));
+        .catch((error: Error) => {
+            // Set the dedicated error state on failure
+            setCode(null);
+            setFetchError(error.toString());
+        });
     }, 500);
     return () => clearTimeout(timer);
   }, [linkData]);
 
   // --- New "Copy" button handler ---
   const handleCopy = () => {
-    if (code) {
+    // Only copy if there is code and no error
+    if (code && !fetchError) {
       navigator.clipboard.writeText(code);
       setCopyText('Copied!');
       setTimeout(() => setCopyText('Copy'), 2000);
@@ -75,25 +93,48 @@ const LinkPage: NextPage<Props> = ({ linkData, errorCode }) => {
       <div style={styles.mainContent}>
         <h1 style={styles.title}>Codeshare</h1>
         <p style={styles.subtitle}>Could not redirect to VS Code.</p>
-        <a href="https://marketplace.visualstudio.com/items?itemName=sarthak.codeshare" target="_blank" rel="noopener noreferrer" style={styles.installButton}>
+        <a href="https://marketplace.visualstudio.com/items?itemName=Sarthakischill.codeshare-by-sarthak" target="_blank" rel="noopener noreferrer" style={styles.installButton}>
           Install VS Code Extension
         </a>
 
         <div style={styles.codeCard}>
           <div style={styles.codeCardHeader}>
             <span style={styles.fileName}>{linkData?.file} (Lines {linkData?.lines})</span>
-            <button onClick={handleCopy} style={styles.copyButton}>{copyText}</button>
+            <button onClick={handleCopy} style={styles.copyButton} disabled={!!fetchError || !code}>
+                {copyText}
+            </button>
           </div>
-          <SyntaxHighlighter
-            language="auto"
-            style={atomOneDark}
-            showLineNumbers={true}
-            startingLineNumber={parseInt(linkData?.lines.split('-')[0] || '1')}
-            customStyle={{ margin: 0, borderRadius: '0 0 8px 8px' }}
-          >
-            {code || ''}
-          </SyntaxHighlighter>
+          {fetchError ? (
+            <div style={styles.errorContainer}>
+              <p style={{margin: 0}}>{fetchError}</p>
+            </div>
+          ) : (
+            <SyntaxHighlighter
+              language="auto"
+              style={atomOneDark}
+              showLineNumbers={true}
+              startingLineNumber={parseInt(linkData?.lines.split('-')[0] || '1')}
+              customStyle={{ margin: 0, borderRadius: '0 0 8px 8px' }}
+            >
+              {code || ''}
+            </SyntaxHighlighter>
+          )}
         </div>
+
+        {/* --- New "View on GitHub" Link --- */}
+        {linkData && (
+          <a
+            href={`${linkData.repo}/blob/${linkData.branch}/${linkData.file}#L${linkData.lines.split('-')[0]}-L${linkData.lines.split('-')[1]}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{...styles.githubLink, backgroundColor: isHovered ? '#3c4043' : 'transparent'}}
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
+          >
+            View on GitHub
+          </a>
+        )}
+
         <footer style={styles.footer}>
             <a href="https://github.com/Sarthakischill/codeshare-project" target="_blank" rel="noopener noreferrer" style={styles.footerLink}>
                 View on GitHub
@@ -183,21 +224,50 @@ const styles: { [key: string]: React.CSSProperties } = {
     color: '#8ab4f8',
     textDecoration: 'none',
   },
+  githubLink: { // New style rule
+    display: 'inline-block',
+    marginTop: '1.5rem',
+    color: '#8ab4f8',
+    textDecoration: 'none',
+    fontSize: '1rem',
+    border: '1px solid #5f6368',
+    padding: '10px 20px',
+    borderRadius: '8px',
+    transition: 'background-color 0.2s',
+  },
+  errorContainer: { // New style rule
+    padding: '16px 20px',
+    backgroundColor: '#2d2d2d',
+    color: '#ff9a9a', // A soft red for error text
+    fontFamily: 'monospace',
+    fontSize: '0.9rem',
+    borderRadius: '0 0 8px 8px',
+    textAlign: 'center',
+  },
 };
 
 // (getServerSideProps function remains exactly the same)
 export const getServerSideProps: GetServerSideProps = async (context) => {
   const { data } = context.params!;
-  if (!Array.isArray(data) || data.length < 3) {
+  // Expect 4 parts now: repo, branch, file, lines
+  if (!Array.isArray(data) || data.length < 4) {
     return { props: { linkData: null, errorCode: 400 } };
   }
-  const [repoB64, fileB64, lines] = data;
+
+  const [repoB64, branchB64, fileB64, lines] = data;
+
   const repo = Buffer.from(repoB64, 'base64url').toString('utf8');
+  const branch = Buffer.from(branchB64, 'base64url').toString('utf8'); // Decode branch
   const file = Buffer.from(fileB64, 'base64url').toString('utf8');
-  const extensionId = 'sarthak.codeshare';
+
+  const extensionId = 'Sarthakischill.codeshare-by-sarthak';
   const vscodeUri = `vscode://${extensionId}/open?repo=${encodeURIComponent(repo)}&file=${encodeURIComponent(file)}&lines=${lines}`;
-  const rawCodeUrl = `${repo}/raw/main/${file}`;
-  const linkData: LinkData = { repo, file, lines, vscodeUri, rawCodeUrl };
+  
+  // Use the dynamic branch name to construct the raw file URL
+  const rawCodeUrl = `${repo}/raw/${branch}/${file}`;
+
+  const linkData: LinkData = { repo, branch, file, lines, vscodeUri, rawCodeUrl };
+
   return {
     props: {
       linkData,
