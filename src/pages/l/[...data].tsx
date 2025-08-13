@@ -1,12 +1,11 @@
-import { GetServerSideProps, NextPage } from 'next';
-import { useEffect, useState } from 'react';
-import Head from 'next/head';
-import SyntaxHighlighter from 'react-syntax-highlighter';
-import { atomOneDark } from 'react-syntax-highlighter/dist/cjs/styles/hljs';
+import { GetServerSideProps, NextPage } from "next";
+import { useEffect, useState } from "react";
+import Layout from "@/components/Layout";
+import CodeViewer from "@/components/CodeViewer";
 
 interface LinkData {
   repo: string;
-  branch: string; // Added branch
+  branch: string;
   file: string;
   lines: string;
   vscodeUri: string;
@@ -18,261 +17,146 @@ interface Props {
   errorCode?: number;
 }
 
-// This is our new, styled component
 const LinkPage: NextPage<Props> = ({ linkData, errorCode }) => {
   const [fallbackVisible, setFallbackVisible] = useState(false);
-  const [code, setCode] = useState<string | null>('Loading code...');
-  const [fetchError, setFetchError] = useState<string | null>(null); // New state for errors
-  const [copyText, setCopyText] = useState('Copy');
-  const [isHovered, setIsHovered] = useState(false);
+  const [code, setCode] = useState<string | null>(null);
+  const [fetchError, setFetchError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!linkData) return;
-    // The core magic: try to open the VS Code link
+
     window.location.href = linkData.vscodeUri;
-    // If that fails, show the fallback UI
+
     const timer = setTimeout(() => {
       setFallbackVisible(true);
       fetch(linkData.rawCodeUrl)
-        .then(res => {
+        .then((res) => {
           if (!res.ok) {
-            // Provide a more specific error message for 404
             if (res.status === 404) {
-              return Promise.reject('Error: File not found. The repository may be private, the branch could be incorrect, or the file path may have changed.');
+              return Promise.reject(
+                "Error: File not found. The repository may be private, the branch incorrect, or the file path may have changed."
+              );
             }
-            return Promise.reject(`Could not fetch code. (HTTP ${res.status})`);
+            return Promise.reject(`Could not fetch code (HTTP ${res.status})`);
           }
           return res.text();
         })
-        .then(text => {
-          const linesArr = text.split('\n');
-          const [start, end] = linkData.lines.split('-').map(Number);
-          const relevantLines = linesArr.slice(start - 1, end).join('\n');
+        .then((text) => {
+          const linesArr = text.split("\n");
+          const [start, end] = linkData.lines.split("-").map(Number);
+          const relevantLines = linesArr.slice(start - 1, end).join("\n");
           setCode(relevantLines);
-          setFetchError(null); // Clear any previous errors on success
+          setFetchError(null);
         })
         .catch((error: Error) => {
-            // Set the dedicated error state on failure
-            setCode(null);
-            setFetchError(error.toString());
+          setCode(null);
+          setFetchError(error.toString());
         });
     }, 500);
+
     return () => clearTimeout(timer);
   }, [linkData]);
 
-  // --- New "Copy" button handler ---
-  const handleCopy = () => {
-    // Only copy if there is code and no error
-    if (code && !fetchError) {
-      navigator.clipboard.writeText(code);
-      setCopyText('Copied!');
-      setTimeout(() => setCopyText('Copy'), 2000);
-    }
-  };
-
   if (errorCode) {
-    return <div style={styles.container}>Error: Invalid link format.</div>;
+    return (
+      <Layout
+        title="Codeshare - Invalid Link"
+        description="Invalid Codeshare link."
+      >
+        <h1 className="text-4xl font-bold">Invalid Link</h1>
+        <p className="text-neutral-400 mt-2">
+          The link format is incorrect. Please generate a new one.
+        </p>
+      </Layout>
+    );
   }
 
   if (!fallbackVisible) {
     return (
-      <div style={styles.container}>
-        <h1 style={styles.title}>Codeshare</h1>
-        <p>Redirecting to VS Code...</p>
-      </div>
+      <Layout
+        title="Redirecting to VS Code..."
+        description="Redirecting to VS Code..."
+      >
+        <h1 className="text-4xl font-bold">Redirecting to VS Code...</h1>
+        <p className="text-neutral-400 mt-2">
+          If nothing happens, you may need to install the Codeshare extension.
+        </p>
+      </Layout>
     );
   }
 
-  // --- The new, styled fallback UI ---
   return (
-    <div style={styles.container}>
-      <Head>
-        <title>Codeshare: {linkData?.file}</title>
-      </Head>
+    <Layout
+      title={`Codeshare: ${linkData?.file}`}
+      description={`Code from ${linkData?.file} in repository ${linkData?.repo}`}
+    >
+      <h1 className="text-4xl md:text-5xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-neutral-100 to-neutral-400 pb-2">
+        Could Not Redirect to VS Code.
+      </h1>
+      <p className="max-w-xl mt-2 text-lg text-neutral-400">
+        Here&apos;s a web preview instead. Install our extension for a seamless
+        experience.
+      </p>
 
-      <div style={styles.mainContent}>
-        <h1 style={styles.title}>Codeshare</h1>
-        <p style={styles.subtitle}>Could not redirect to VS Code.</p>
-        <a href="https://marketplace.visualstudio.com/items?itemName=Sarthakischill.codeshare-by-sarthak" target="_blank" rel="noopener noreferrer" style={styles.installButton}>
+      <div className="mt-8 flex flex-col sm:flex-row gap-4">
+        <a
+          href="https://marketplace.visualstudio.com/items?itemName=Sarthakischill.codeshare-by-sarthak"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="bg-blue-600 text-white font-semibold py-3 px-6 rounded-lg hover:bg-blue-700 transition-colors duration-200"
+        >
           Install VS Code Extension
         </a>
-
-        <div style={styles.codeCard}>
-          <div style={styles.codeCardHeader}>
-            <span style={styles.fileName}>{linkData?.file} (Lines {linkData?.lines})</span>
-            <button onClick={handleCopy} style={styles.copyButton} disabled={!!fetchError || !code}>
-                {copyText}
-            </button>
-          </div>
-          {fetchError ? (
-            <div style={styles.errorContainer}>
-              <p style={{margin: 0}}>{fetchError}</p>
-            </div>
-          ) : (
-            <SyntaxHighlighter
-              language="auto"
-              style={atomOneDark}
-              showLineNumbers={true}
-              startingLineNumber={parseInt(linkData?.lines.split('-')[0] || '1')}
-              customStyle={{ margin: 0, borderRadius: '0 0 8px 8px' }}
-            >
-              {code || ''}
-            </SyntaxHighlighter>
-          )}
-        </div>
-
-        {/* --- New "View on GitHub" Link --- */}
         {linkData && (
           <a
-            href={`${linkData.repo}/blob/${linkData.branch}/${linkData.file}#L${linkData.lines.split('-')[0]}-L${linkData.lines.split('-')[1]}`}
+            href={`${linkData.repo}/blob/${linkData.branch}/${linkData.file}#L${
+              linkData.lines.split("-")[0]
+            }-L${linkData.lines.split("-")[1]}`}
             target="_blank"
             rel="noopener noreferrer"
-            style={{...styles.githubLink, backgroundColor: isHovered ? '#3c4043' : 'transparent'}}
-            onMouseEnter={() => setIsHovered(true)}
-            onMouseLeave={() => setIsHovered(false)}
+            className="bg-neutral-800 text-neutral-300 font-semibold py-3 px-6 rounded-lg hover:bg-neutral-700 border border-neutral-700 transition-colors duration-200"
           >
             View on GitHub
           </a>
         )}
-
-        <footer style={styles.footer}>
-            <a href="https://github.com/Sarthakischill/codeshare-project" target="_blank" rel="noopener noreferrer" style={styles.footerLink}>
-                View on GitHub
-            </a>
-        </footer>
       </div>
-    </div>
+
+      <CodeViewer
+        title={`${linkData?.file} (Lines ${linkData?.lines})`}
+        code={code}
+        language={linkData?.file.split(".").pop() || "plaintext"}
+        startingLineNumber={parseInt(linkData?.lines.split("-")[0] || "1")}
+        error={fetchError}
+      />
+    </Layout>
   );
 };
 
-// --- A simple CSS-in-JS object for our styles ---
-const styles: { [key: string]: React.CSSProperties } = {
-  container: {
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'center',
-    minHeight: '100vh',
-    backgroundColor: '#202124',
-    color: '#e8eaed',
-    fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
-    padding: '2rem',
-  },
-  mainContent: {
-    width: '100%',
-    maxWidth: '800px',
-    textAlign: 'center',
-  },
-  title: {
-    fontSize: '2.5rem',
-    fontWeight: 700,
-    marginBottom: '0.5rem',
-  },
-  subtitle: {
-    fontSize: '1.2rem',
-    color: '#bdc1c6',
-    marginBottom: '2rem',
-  },
-  installButton: {
-    display: 'inline-block',
-    backgroundColor: '#8ab4f8',
-    color: '#202124',
-    padding: '12px 24px',
-    borderRadius: '8px',
-    textDecoration: 'none',
-    fontWeight: 600,
-    fontSize: '1rem',
-    transition: 'opacity 0.2s',
-  },
-  codeCard: {
-    marginTop: '3rem',
-    border: '1px solid #5f6368',
-    borderRadius: '8px',
-    textAlign: 'left',
-    boxShadow: '0 4px 8px rgba(0,0,0,0.2)',
-  },
-  codeCardHeader: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: '12px 16px',
-    backgroundColor: '#3c4043',
-    borderBottom: '1px solid #5f6368',
-    borderTopLeftRadius: '8px',
-    borderTopRightRadius: '8px',
-  },
-  fileName: {
-    fontSize: '0.9rem',
-    fontFamily: 'monospace',
-  },
-  copyButton: {
-    backgroundColor: '#5f6368',
-    color: '#e8eaed',
-    border: 'none',
-    borderRadius: '4px',
-    padding: '6px 12px',
-    cursor: 'pointer',
-    fontSize: '0.9rem',
-    transition: 'background-color 0.2s',
-  },
-  footer: {
-    marginTop: '3rem',
-    fontSize: '0.9rem',
-    color: '#9aa0a6',
-  },
-  footerLink: {
-    color: '#8ab4f8',
-    textDecoration: 'none',
-  },
-  githubLink: { // New style rule
-    display: 'inline-block',
-    marginTop: '1.5rem',
-    color: '#8ab4f8',
-    textDecoration: 'none',
-    fontSize: '1rem',
-    border: '1px solid #5f6368',
-    padding: '10px 20px',
-    borderRadius: '8px',
-    transition: 'background-color 0.2s',
-  },
-  errorContainer: { // New style rule
-    padding: '16px 20px',
-    backgroundColor: '#2d2d2d',
-    color: '#ff9a9a', // A soft red for error text
-    fontFamily: 'monospace',
-    fontSize: '0.9rem',
-    borderRadius: '0 0 8px 8px',
-    textAlign: 'center',
-  },
-};
-
-// (getServerSideProps function remains exactly the same)
+// getServerSideProps remains unchanged
 export const getServerSideProps: GetServerSideProps = async (context) => {
   const { data } = context.params!;
-  // Expect 4 parts now: repo, branch, file, lines
   if (!Array.isArray(data) || data.length < 4) {
     return { props: { linkData: null, errorCode: 400 } };
   }
 
   const [repoB64, branchB64, fileB64, lines] = data;
-
-  const repo = Buffer.from(repoB64, 'base64url').toString('utf8');
-  const branch = Buffer.from(branchB64, 'base64url').toString('utf8'); // Decode branch
-  const file = Buffer.from(fileB64, 'base64url').toString('utf8');
-
-  const extensionId = 'Sarthakischill.codeshare-by-sarthak';
-  const vscodeUri = `vscode://${extensionId}/open?repo=${encodeURIComponent(repo)}&file=${encodeURIComponent(file)}&lines=${lines}`;
-  
-  // --- THIS IS THE FIX ---
-  // Before (Incorrect): const rawCodeUrl = `${repo}/raw/${branch}/${file}`;
-  
-  // After (Correct):
-  // 1. Get the path part of the repo URL (e.g., Sarthakischill/codeshare-project)
-  const repoPath = repo.replace('https://github.com/', '');
-  // 2. Construct the direct raw content URL
+  const repo = Buffer.from(repoB64, "base64url").toString("utf8");
+  const branch = Buffer.from(branchB64, "base64url").toString("utf8");
+  const file = Buffer.from(fileB64, "base64url").toString("utf8");
+  const extensionId = "Sarthakischill.codeshare-by-sarthak";
+  const vscodeUri = `vscode://${extensionId}/open?repo=${encodeURIComponent(
+    repo
+  )}&file=${encodeURIComponent(file)}&lines=${lines}`;
+  const repoPath = repo.replace("https://github.com/", "");
   const rawCodeUrl = `https://raw.githubusercontent.com/${repoPath}/${branch}/${file}`;
-
-  const linkData: LinkData = { repo, branch, file, lines, vscodeUri, rawCodeUrl };
+  const linkData: LinkData = {
+    repo,
+    branch,
+    file,
+    lines,
+    vscodeUri,
+    rawCodeUrl,
+  };
 
   return {
     props: {
