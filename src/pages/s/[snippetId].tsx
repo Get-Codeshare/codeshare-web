@@ -2,6 +2,7 @@ import { GetServerSideProps, NextPage } from "next";
 import { kv } from "@vercel/kv";
 import Layout from "@/components/Layout";
 import CodeViewer from "@/components/CodeViewer";
+import BlueprintCard from "@/components/BlueprintCard";
 
 interface Snippet {
   code: string;
@@ -19,19 +20,25 @@ const SnippetPage: NextPage<Props> = ({ snippet, error }) => {
       title={error ? "Codeshare - Error" : "Codeshare Snippet"}
       description="A shared code snippet from Codeshare."
     >
-      <h1 className="text-4xl md:text-5xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-neutral-100 to-neutral-400 pb-2">
-        Codeshare Snippet
-      </h1>
-      <p className="max-w-xl mt-2 text-lg text-neutral-400">
-        This is a temporary code snippet shared via Codeshare.
-      </p>
+      <div className="container mx-auto px-4 py-24 flex justify-center">
+        <BlueprintCard className="w-full max-w-5xl">
+          <div className="text-center">
+            <h1 className="font-audiowide text-2xl md:text-3xl tracking-tighter">
+              Shared Snippet
+            </h1>
+            <p className="max-w-xl mx-auto mt-2 text-neutral-600">
+              This is a temporary code snippet. It will expire after 24 hours.
+            </p>
+          </div>
 
-      <CodeViewer
-        title={error ? "Error" : `Snippet (${snippet?.language || 'plaintext'})`}
-        code={snippet?.code || null}
-        language={snippet?.language || null}
-        error={error}
-      />
+          <CodeViewer
+            title={error ? "Error" : `Language: ${snippet?.language || 'plaintext'}`}
+            code={snippet?.code || null}
+            language={snippet?.language || null}
+            error={error}
+          />
+        </BlueprintCard>
+      </div>
     </Layout>
   );
 };

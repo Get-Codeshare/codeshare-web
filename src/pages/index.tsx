@@ -1,167 +1,149 @@
-import { Geist } from 'next/font/google';
-import Head from 'next/head';
-
-// Define the font
-const geistSans = Geist({
-  variable: '--font-geist-sans',
-  subsets: ['latin'],
-});
-
-// --- Helper Components for Icons ---
-// Using inline SVG components is clean, fast, and avoids extra dependencies.
-
-const LinkIcon = () => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    className="h-8 w-8 mb-4 text-blue-400"
-    fill="none"
-    viewBox="0 0 24 24"
-    stroke="currentColor"
-    strokeWidth={2}
-  >
-    <path
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"
-    />
-  </svg>
-);
-
-const CodeIcon = () => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    className="h-8 w-8 mb-4 text-blue-400"
-    fill="none"
-    viewBox="0 0 24 24"
-    stroke="currentColor"
-    strokeWidth={2}
-  >
-    <path strokeLinecap="round" strokeLinejoin="round" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
-  </svg>
-);
-
-const TerminalIcon = () => (
-    <svg 
-        xmlns="http://www.w3.org/2000/svg" 
-        className="h-8 w-8 mb-4 text-blue-400"
-        fill="none" 
-        viewBox="0 0 24 24" 
-        stroke="currentColor"
-        strokeWidth={2}
-    >
-        <path strokeLinecap="round" strokeLinejoin="round" d="M8 9l4-4 4 4m0 6l-4 4-4-4" />
-    </svg>
-);
+import Layout from '@/components/Layout';
+import BlueprintCard from '@/components/BlueprintCard';
+import FeatureCard from '@/components/FeatureCard';
+import NpmCommand from '@/components/NpmCommand';
 
 
-// --- The Main Landing Page Component ---
 
 export default function HomePage() {
   return (
-    <>
-      <Head>
-        <title>Codeshare - The Missing Link for Your Code</title>
-        <meta
-          name="description"
-          content="Generate universal links to specific lines of code that open in VS Code for teammates and in the browser for everyone else."
-        />
-        <link rel="icon" href="/favicon.ico" />
-      </Head>
+    <Layout
+      title="Codeshare - The Missing Link For Your Code"
+      description="Generate universal links to specific lines of code that open in VS Code for teammates and in the browser for everyone else."
+    >
+      <div className="container mx-auto px-4">
+        {/* --- Hero Section --- */}
+        <section className="text-center pt-24 pb-16 md:pt-32 md:pb-24">
+          <h1 className="font-audiowide text-4xl md:text-6xl lg:text-7xl tracking-tighter">
+            The Missing Link
+          </h1>
+          <h2 className="text-4xl md:text-6xl lg:text-7xl text-neutral-500">
+            For Your Code.
+          </h2>
+          <p className="max-w-2xl mx-auto mt-6 text-base md:text-lg text-neutral-600">
+            Generate universal links to specific lines of code. They open directly in VS Code for teammates and fall back to a web view for everyone else.
+          </p>
+          <div className="mt-8 flex flex-col sm:flex-row gap-4 justify-center items-center">
+            <a
+              href="https://marketplace.visualstudio.com/items?itemName=Sarthakischill.codeshare-by-sarthak"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="bg-black text-white font-semibold py-3 px-6 rounded-lg hover:bg-neutral-800 transition-colors"
+            >
+              Install for VS Code
+            </a>
+            <NpmCommand />
+            <a
+              href="https://github.com/Sarthakischill/codeshare-project"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-neutral-600 hover:text-black transition-colors font-medium"
+            >
+              View on GitHub
+            </a>
+          </div>
+        </section>
 
-      <div className={`${geistSans.className} bg-black text-white antialiased`}>
-        <div className="container mx-auto px-4">
-          
-          {/* --- Hero Section --- */}
-          <section className="min-h-screen flex flex-col items-center justify-center text-center py-20">
-            <h1 className="text-5xl md:text-7xl font-extrabold tracking-tighter bg-clip-text text-transparent bg-gradient-to-r from-neutral-100 to-neutral-400 pb-2">
-              The Missing Link for Your Code.
-            </h1>
-            <p className="max-w-3xl mt-4 text-lg md:text-xl text-neutral-400">
-              Generate universal links to specific lines of code. They open in VS Code for teammates and in the browser for everyone else.
+
+
+        {/* --- Feature Deep Dive Section --- */}
+        <section className="pb-24 md:pb-32">
+          <div className="text-center mb-16">
+            <h2 className="font-audiowide text-3xl md:text-4xl">
+              One Tool, Every Workflow.
+            </h2>
+            <p className="max-w-xl mx-auto mt-4 text-neutral-600">
+              A seamless experience, from your IDE to the browser, to your
+              terminal.
             </p>
-            <div className="mt-8 flex flex-col sm:flex-row gap-4">
-              <a
-                href="https://marketplace.visualstudio.com/items?itemName=Sarthakischill.codeshare-by-sarthak"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="bg-blue-600 text-white font-semibold py-3 px-8 rounded-lg hover:bg-blue-700 transition-colors duration-200"
-              >
-                Install for VS Code
-              </a>
-              <a
-                href="https://github.com/Sarthakischill/codeshare-project"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="bg-neutral-800 text-neutral-300 font-semibold py-3 px-8 rounded-lg hover:bg-neutral-700 border border-neutral-700 transition-colors duration-200"
-              >
-                View on GitHub
-              </a>
-            </div>
-          </section>
+          </div>
 
-          {/* --- Features Section --- */}
-          <section className="py-20 max-w-5xl mx-auto">
-            <div className="text-center mb-12">
-                <h2 className="text-4xl font-bold tracking-tight">One Tool, Every Workflow.</h2>
-                <p className="text-neutral-400 mt-2">A seamless experience, from your IDE to the browser.</p>
-            </div>
-            <div className="grid md:grid-cols-3 gap-8 text-center">
-              <div className="bg-neutral-900/50 p-8 rounded-xl border border-neutral-800">
-                <LinkIcon />
-                <h3 className="text-xl font-semibold mb-2">Universal Links</h3>
-                <p className="text-neutral-400">
-                  One link works everywhere. Teammates with the extension go straight to their IDE. Everyone else gets a beautiful, read-only web view.
-                </p>
+          <div className="grid md:grid-cols-3 gap-8">
+            <FeatureCard
+              title="VS Code Extension"
+              description="Generate links with a right-click or shortcut. Click a codeshare link and it opens the file directly in your local editor."
+              imageUrl="/feature-vscode.png"
+            />
+            <FeatureCard
+              title="Powerful CLI"
+              description="For those who live in the terminal. The `get-codeshare` NPM package brings context-aware link generation to any shell."
+              imageUrl="/feature-cli.png"
+            />
+            {/* Placeholder for the Web Platform feature - will be replaced with FeatureCard once you add feature-web.png */}
+            <BlueprintCard className="flex flex-col text-center">
+              <div className="h-60 w-full mb-6 rounded-lg bg-neutral-100 border border-neutral-200 flex items-center justify-center">
+                <p className="text-neutral-400">Web UI Screenshot</p>
               </div>
-              <div className="bg-neutral-900/50 p-8 rounded-xl border border-neutral-800">
-                <CodeIcon />
-                <h3 className="text-xl font-semibold mb-2">IDE Native</h3>
-                <p className="text-neutral-400">
-                  Stop context switching. Generate links and open them without ever leaving your editor. Supports VS Code and its forks (Cursor, VSCodium).
-                </p>
-              </div>
-              <div className="bg-neutral-900/50 p-8 rounded-xl border border-neutral-800">
-                <TerminalIcon />
-                <h3 className="text-xl font-semibold mb-2">Powerful CLI</h3>
-                <p className="text-neutral-400">
-                  For those who live in the terminal. The `get-codeshare` NPM package brings link generation to any shell environment.
-                </p>
-              </div>
-            </div>
-          </section>
-          
-          {/* --- FAQ / Security Section --- */}
-          <section className="py-20 max-w-3xl mx-auto">
-            <div className="text-center mb-12">
-                <h2 className="text-4xl font-bold tracking-tight">Your Questions, Answered.</h2>
-            </div>
-            <div className="space-y-6 text-left">
-                <div className="bg-neutral-900/50 p-6 rounded-lg border border-neutral-800">
-                    <h3 className="font-semibold text-lg">Is my code stored on your servers?</h3>
-                    <p className="text-neutral-400 mt-1">
-                        <strong className="text-neutral-200">Never.</strong> Codeshare is stateless. The web view fetches code directly from your public GitHub repository in real-time. We do not see, store, or proxy your code.
-                    </p>
-                </div>
-                 <div className="bg-neutral-900/50 p-6 rounded-lg border border-neutral-800">
-                    <h3 className="font-semibold text-lg">Is it open source?</h3>
-                    <p className="text-neutral-400 mt-1">
-                        Yes. The entire suite—VS Code extension, CLI, and this web app—is open source and available on GitHub under the MIT License.
-                    </p>
-                </div>
-            </div>
-          </section>
+              
+              <h3 className="text-xl font-bold mb-2">The Web Platform</h3>
+              <p className="text-neutral-600 flex-grow">
+                The hub that powers it all. Provides a beautiful, read-only web view for users without the extension.
+              </p>
+            </BlueprintCard>
+          </div>
+        </section>
 
-          {/* --- Footer --- */}
-          <footer className="text-center py-10 border-t border-neutral-800 mt-20">
-            <p className="text-neutral-500">
-              A project by{' '}
-              <a href="https://github.com/Sarthakischill" className="underline hover:text-white" target="_blank" rel="noopener noreferrer">
-                Sarthak
-              </a>
+        {/* --- How it Works Section --- */}
+        <section className="pb-24 md:pb-32">
+          <div className="text-center mb-16">
+            <h2 className="font-audiowide text-3xl md:text-4xl">
+              How It Works
+            </h2>
+            <p className="max-w-xl mx-auto mt-4 text-neutral-600">
+              Three simple steps to seamless code sharing.
             </p>
-          </footer>
-        </div>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-8">
+            <div className="text-center">
+              <div className="w-16 h-16 bg-black text-white rounded-full flex items-center justify-center text-2xl font-bold mx-auto mb-4">
+                1
+              </div>
+              <h3 className="text-xl font-bold mb-2">Select & Generate</h3>
+              <p className="text-neutral-600">
+                Highlight code in VS Code or use the CLI to generate a universal
+                link.
+              </p>
+            </div>
+            <div className="text-center">
+              <div className="w-16 h-16 bg-black text-white rounded-full flex items-center justify-center text-2xl font-bold mx-auto mb-4">
+                2
+              </div>
+              <h3 className="text-xl font-bold mb-2">Share Anywhere</h3>
+              <p className="text-neutral-600">
+                Send the link via Slack, email, or any communication platform.
+              </p>
+            </div>
+            <div className="text-center">
+              <div className="w-16 h-16 bg-black text-white rounded-full flex items-center justify-center text-2xl font-bold mx-auto mb-4">
+                3
+              </div>
+              <h3 className="text-xl font-bold mb-2">Smart Opening</h3>
+              <p className="text-neutral-600">
+                Recipients with the extension see it in VS Code, others get a
+                web view.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        {/* --- Final CTA --- */}
+        <section className="text-center py-24">
+          <h2 className="font-audiowide text-3xl md:text-4xl">
+            Start Sharing Code Intelligently.
+          </h2>
+          <div className="mt-8">
+            <a
+              href="https://marketplace.visualstudio.com/items?itemName=Sarthakischill.codeshare-by-sarthak"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="bg-black text-white font-semibold py-4 px-8 rounded-lg hover:bg-neutral-800 transition-colors text-lg"
+            >
+              Install for Free
+            </a>
+          </div>
+        </section>
       </div>
-    </>
+    </Layout>
   );
 }

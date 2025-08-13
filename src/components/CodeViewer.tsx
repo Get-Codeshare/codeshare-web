@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import SyntaxHighlighter from 'react-syntax-highlighter';
+// We'll keep the dark style for the code itself for contrast, like the Tailwind Docs
 import { atomOneDark } from 'react-syntax-highlighter/dist/cjs/styles/hljs';
 
 interface CodeViewerProps {
@@ -28,10 +29,11 @@ export default function CodeViewer({
   };
 
   return (
-    <div className="w-full max-w-4xl mt-12 bg-neutral-900/50 rounded-xl border border-neutral-800 text-left shadow-2xl">
+    // This component will have a dark background for contrast, even on the light page
+    <div className="w-full max-w-4xl mt-12 bg-[#282c34] rounded-xl border border-neutral-700 text-left shadow-2xl">
       {/* Card Header */}
-      <div className="flex justify-between items-center px-4 py-3 bg-neutral-800/50 border-b border-neutral-700 rounded-t-xl">
-        <span className="font-mono text-sm text-neutral-400">{title}</span>
+      <div className="flex justify-between items-center px-4 py-3 bg-black/20 border-b border-neutral-700 rounded-t-xl">
+        <span className="font-mono text-sm text-neutral-300">{title}</span>
         <button
           onClick={handleCopy}
           disabled={!!error || !code}
