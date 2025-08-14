@@ -28,7 +28,7 @@ export default function NpmCommand() {
           'text-center font-normal tracking-[-0.18px]',
           'active:scale-[0.98]',
           'h-11 px-6 py-3 text-base',
-          'bg-transparent border-2 border-foreground/20 text-foreground'
+          'bg-foreground/5 text-foreground backdrop-blur-[50px]'
         )}
         aria-label="Copy command"
       >

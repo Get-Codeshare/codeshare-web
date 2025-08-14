@@ -31,14 +31,12 @@ const Header = () => (
         </Link>
 
         <nav className="hidden md:flex items-center space-x-6">
-          <a
-            href="https://github.com/Sarthakischill/codeshare-project/blob/main/README.md"
-            target="_blank"
-            rel="noopener noreferrer"
+          <Link
+            href="/docs"
             className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
           >
             Documentation
-          </a>
+          </Link>
           <a
             href="https://github.com/Sarthakischill/"
             target="_blank"
@@ -84,10 +82,10 @@ const Header = () => (
 );
 
 const Footer = () => (
-  <footer className="bg-background border-t border-border relative">
-    <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
+  <footer className="bg-background border-t border-border pt-6">
+    <div className="container mx-auto px-4 sm:px-6 lg:px-8 pt-12 pb-0">
       {/* Main Footer Content */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-12">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-12 max-w-6xl mx-auto">
         {/* Logo and Description */}
         <div className="md:col-span-1">
           <div className="flex items-center gap-3 mb-4">
@@ -105,8 +103,7 @@ const Footer = () => (
             </span>
           </div>
           <p className="text-sm text-muted-foreground leading-relaxed max-w-xs">
-            Privacy-first code sharing without compromising developer
-            experience.
+            Fast af code sharing experience.
           </p>
         </div>
 
@@ -115,14 +112,12 @@ const Footer = () => (
           <h3 className="text-sm font-medium text-foreground mb-4">Product</h3>
           <ul className="space-y-2">
             <li>
-              <a
-                href="https://github.com/Sarthakischill/codeshare-project/blob/main/README.md"
-                target="_blank"
-                rel="noopener noreferrer"
+              <Link
+                href="/docs"
                 className="text-sm text-muted-foreground hover:text-foreground transition-colors"
               >
                 Documentation
-              </a>
+              </Link>
             </li>
             <li>
               <a
@@ -149,7 +144,7 @@ const Footer = () => (
 
         {/* Company Links */}
         <div>
-          <h3 className="text-sm font-medium text-foreground mb-4">Company</h3>
+          <h3 className="text-sm font-medium text-foreground mb-4">Open Source</h3>
           <ul className="space-y-2">
             <li>
               <a
@@ -190,22 +185,6 @@ const Footer = () => (
           <ul className="space-y-2">
             <li>
               <a
-                href="mailto:support@codeshare.dev"
-                className="text-sm text-muted-foreground hover:text-foreground transition-colors flex items-center"
-              >
-                <svg
-                  className="w-4 h-4 mr-2"
-                  fill="currentColor"
-                  viewBox="0 0 20 20"
-                >
-                  <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
-                  <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
-                </svg>
-                support@codeshare.dev
-              </a>
-            </li>
-            <li>
-              <a
                 href="https://github.com/Sarthakischill"
                 target="_blank"
                 rel="noopener noreferrer"
@@ -223,7 +202,7 @@ const Footer = () => (
             </li>
             <li>
               <a
-                href="https://x.com/codeshare"
+                href="https://x.com/Sarthakhuh"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-sm text-muted-foreground hover:text-foreground transition-colors flex items-center"
@@ -241,19 +220,11 @@ const Footer = () => (
           </ul>
         </div>
       </div>
-
-      {/* Bottom Section */}
-      <div className="border-t border-border pt-6">
-        <div className="flex flex-col md:flex-row justify-between items-center text-xs text-muted-foreground">
-          <p>© 2025 Codeshare</p>
-          <p className="mt-2 md:mt-0">Privacy-first analytics</p>
-        </div>
-      </div>
     </div>
 
     {/* Magic SVG Wordmark - Positioned to show 70%, with 30% below page */}
-    <div className="relative overflow-hidden -mt-8">
-      <div className="transform translate-y-[30%]">
+    <div className="relative overflow-hidden border-t border-border">
+      <div className="transform translate-y-[40%]">
         <Wordmark />
       </div>
     </div>
