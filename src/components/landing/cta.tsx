@@ -16,8 +16,8 @@ export default function CTA() {
           </h2>
 
           <p className="mx-auto max-w-3xl text-lg text-muted-foreground sm:text-xl">
-            Join thousands of developers who've made code sharing effortless
-            with Codeshare.
+            Join thousands of developers who&apos;ve made code sharing
+            effortless with Codeshare.
           </p>
 
           <div className="flex flex-col items-center gap-4 pt-4 sm:flex-row sm:justify-center">
