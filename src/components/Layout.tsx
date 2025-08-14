@@ -1,6 +1,6 @@
 import Head from "next/head";
 import Link from "next/link";
-import { ReactNode } from "react";
+import { ReactNode, useState, useEffect } from "react";
 import { SciFiButton } from "./ui/scifi-button";
 import ThemeToggle from "./ThemeToggle";
 import { Wordmark } from "./Wordmark";
@@ -22,64 +22,144 @@ const Logo = () => (
   </div>
 );
 
-const Header = () => (
-  <header className="sticky top-0 z-50 w-full border-b border-border bg-background/80 backdrop-blur-md">
-    <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-      <div className="flex h-16 items-center justify-between">
-        <Link href="/" className="flex items-center">
-          <Logo />
-        </Link>
+const Header = () => {
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-        <nav className="hidden md:flex items-center space-x-6">
-          <Link
-            href="/docs"
-            className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-          >
-            Documentation
+  useEffect(() => {
+    // Close mobile menu if window is resized to a larger screen
+    const handleResize = () => {
+      if (window.innerWidth >= 768) {
+        setIsMobileMenuOpen(false);
+      }
+    };
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  // Prevent body scroll when mobile menu is open
+  useEffect(() => {
+    if (isMobileMenuOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "unset";
+    }
+  }, [isMobileMenuOpen]);
+
+  return (
+    <header className="sticky top-0 z-50 w-full border-b border-border bg-background/80 backdrop-blur-md">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex h-16 items-center justify-between">
+          <Link href="/" className="flex items-center">
+            <Logo />
           </Link>
-          <a
-            href="https://github.com/Sarthakischill/"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-          >
-            GitHub
-          </a>
-          <ThemeToggle />
-          <SciFiButton asChild size="sm">
+
+          {/* Desktop Navigation */}
+          <nav className="hidden md:flex items-center space-x-6">
+            <Link
+              href="/docs"
+              className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+            >
+              Documentation
+            </Link>
             <a
-              href="https://marketplace.visualstudio.com/items?itemName=Sarthakischill.codeshare-by-sarthak"
+              href="https://github.com/Sarthakischill/codeshare-project"
               target="_blank"
               rel="noopener noreferrer"
+              className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
             >
-              Install Extension
+              GitHub
             </a>
-          </SciFiButton>
-        </nav>
+            <ThemeToggle />
+            <SciFiButton asChild size="sm">
+              <a
+                href="https://marketplace.visualstudio.com/items?itemName=Sarthakischill.codeshare-by-sarthak"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Install Extension
+              </a>
+            </SciFiButton>
+          </nav>
 
-        {/* Mobile menu button */}
-        <div className="md:hidden flex items-center space-x-2">
-          <ThemeToggle />
-          <button className="p-2 text-muted-foreground hover:text-foreground">
-            <svg
-              className="w-6 h-6"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
+          {/* Mobile Menu Button */}
+          <div className="md:hidden flex items-center space-x-2">
+            <ThemeToggle />
+            <button
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              className="p-2 text-muted-foreground hover:text-foreground"
+              aria-label="Toggle mobile menu"
             >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M4 6h16M4 12h16M4 18h16"
-              />
-            </svg>
-          </button>
+              {isMobileMenuOpen ? (
+                <svg
+                  className="w-6 h-6"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M6 18L18 6M6 6l12 12"
+                  />
+                </svg>
+              ) : (
+                <svg
+                  className="w-6 h-6"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M4 6h16M4 12h16M4 18h16"
+                  />
+                </svg>
+              )}
+            </button>
+          </div>
         </div>
       </div>
-    </div>
-  </header>
-);
+
+      {/* Mobile Menu Overlay */}
+      {isMobileMenuOpen && (
+        <div className="md:hidden absolute top-16 left-0 w-full h-[calc(100vh-4rem)] bg-background/95 backdrop-blur-sm p-6 animate-fade-in">
+          <nav className="flex flex-col space-y-6 text-lg">
+            <Link
+              href="/docs"
+              className="font-medium text-muted-foreground hover:text-foreground transition-colors"
+              onClick={() => setIsMobileMenuOpen(false)}
+            >
+              Documentation
+            </Link>
+            <a
+              href="https://github.com/Sarthakischill/codeshare-project"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-medium text-muted-foreground hover:text-foreground transition-colors"
+              onClick={() => setIsMobileMenuOpen(false)}
+            >
+              GitHub
+            </a>
+            <SciFiButton asChild size="lg" className="mt-4">
+              <a
+                href="https://marketplace.visualstudio.com/items?itemName=Sarthakischill.codeshare-by-sarthak"
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                Install Extension
+              </a>
+            </SciFiButton>
+          </nav>
+        </div>
+      )}
+    </header>
+  );
+};
+
 
 const Footer = () => (
   <footer className="bg-background border-t border-border pt-6">

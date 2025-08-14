@@ -1,0 +1,3064 @@
+This file is a merged representation of the entire codebase, combined into a single document by Repomix.
+
+<file_summary>
+This section contains a summary of this file.
+
+<purpose>
+This file contains a packed representation of the entire repository's contents.
+It is designed to be easily consumable by AI systems for analysis, code review,
+or other automated processes.
+</purpose>
+
+<file_format>
+The content is organized as follows:
+1. This summary section
+2. Repository information
+3. Directory structure
+4. Repository files (if enabled)
+5. Multiple file entries, each consisting of:
+  - File path as an attribute
+  - Full contents of the file
+</file_format>
+
+<usage_guidelines>
+- This file should be treated as read-only. Any changes should be made to the
+  original repository files, not this packed version.
+- When processing this file, use the file path to distinguish
+  between different files in the repository.
+- Be aware that this file may contain sensitive information. Handle it with
+  the same level of security as you would the original repository.
+</usage_guidelines>
+
+<notes>
+- Some files may have been excluded based on .gitignore rules and Repomix's configuration
+- Binary files are not included in this packed representation. Please refer to the Repository Structure section for a complete list of file paths, including binary files
+- Files matching patterns in .gitignore are excluded
+- Files matching default ignore patterns are excluded
+- Files are sorted by Git change count (files with more changes are at the bottom)
+</notes>
+
+</file_summary>
+
+<directory_structure>
+public/
+  favicon.svg
+src/
+  components/
+    demos/
+      cli-terminal-demo.tsx
+      keyboard-shortcut-demo.tsx
+      web-platform-demo.tsx
+    icons/
+      index.tsx
+    landing/
+      cta.tsx
+    magicui/
+      terminal.tsx
+    ui/
+      button.tsx
+      grid-pattern.tsx
+      keyboard-shortcut.tsx
+      keyboard.tsx
+      scifi-button.tsx
+    Card.tsx
+    CodeViewer.tsx
+    FeatureCard.tsx
+    Layout.tsx
+    MagicSVG.tsx
+    NpmCommand.tsx
+    SciFiGridCard.tsx
+    ThemeToggle.tsx
+    Wordmark.tsx
+  contexts/
+    ThemeContext.tsx
+  lib/
+    utils.ts
+  pages/
+    api/
+      share.ts
+    l/
+      [...data].tsx
+    s/
+      [snippetId].tsx
+    _app.tsx
+    _document.tsx
+    docs.tsx
+    index.tsx
+  styles/
+    globals.css
+.gitignore
+eslint.config.mjs
+next.config.ts
+package.json
+postcss.config.mjs
+tailwind.config.ts
+tsconfig.json
+</directory_structure>
+
+<files>
+This section contains the contents of the repository's files.
+
+<file path="src/components/demos/cli-terminal-demo.tsx">
+import {
+  AnimatedSpan,
+  Terminal,
+  TypingAnimation,
+} from "@/components/magicui/terminal";
+
+const CLITerminalDemo = () => {
+  return (
+    // MODIFIED: Changed dark:bg-gray-900 to a custom darker color
+    <Terminal className="bg-gray-100 dark:bg-[#121212] text-gray-800 dark:text-gray-200 font-mono text-[11px] max-w-full w-full h-full text-left">
+      {/* Initial command */}
+      <TypingAnimation
+        className="text-cyan-600 dark:text-cyan-400 break-all"
+        duration={50}
+      >
+        ~dev ❯ npm install -g get-codeshare
+      </TypingAnimation>
+
+      {/* Installation output */}
+      <AnimatedSpan className="text-gray-700 dark:text-gray-300">
+        changed 34 packages in 314ms
+      </AnimatedSpan>
+      {/* First codeshare command */}
+      <TypingAnimation
+        className="text-cyan-600 dark:text-cyan-400 break-all"
+        duration={50}
+      >
+        ~/dev ❯ codeshare apps/web/app/layout.tsx:42-76
+      </TypingAnimation>
+
+      {/* Success message with checkmark */}
+      <AnimatedSpan className="text-green-600 dark:text-green-400">
+        ✅ Link (Git-aware) copied to clipboard!
+      </AnimatedSpan>
+
+      {/* Generated URL */}
+      <AnimatedSpan className="text-blue-600 dark:text-blue-400 break-all">
+        https://codeshare.sarthaks.tech/l/XBwL2xheW91dC50c3g/42-76
+      </AnimatedSpan>
+      {/* Final prompt with cursor */}
+      <TypingAnimation className="text-cyan-600 dark:text-cyan-400" duration={100}>
+        ~/dev ❯
+      </TypingAnimation>
+    </Terminal>
+  );
+};
+
+export { CLITerminalDemo };
+</file>
+
+<file path="src/components/demos/keyboard-shortcut-demo.tsx">
+"use client"
+
+import React, { useState, useEffect } from 'react';
+import { Button } from "@/components/ui/button"
+import { cn } from "@/lib/utils"
+
+interface KeyboardShortcutProps {
+  className?: string;
+  animated?: boolean;
+  theme?: "default" | "gradient" | "neon";
+}
+
+const KeyButton = ({
+  children,
+  className = "",
+  isHighlighted = false,
+  size = "default",
+  theme = "default",
+  delay = 0,
+}: {
+  children: React.ReactNode;
+  className?: string;
+  isHighlighted?: boolean;
+  size?: "sm" | "default" | "lg";
+  theme?: "default" | "gradient" | "neon";
+  delay?: number;
+}) => {
+  const [isAnimating, setIsAnimating] = useState(false);
+  const [isPressed, setIsPressed] = useState(false);
+
+  useEffect(() => {
+    if (isHighlighted) {
+      const timer = setTimeout(() => {
+        setIsAnimating(true);
+        setTimeout(() => setIsAnimating(false), 600);
+      }, delay);
+      return () => clearTimeout(timer);
+    }
+  }, [isHighlighted, delay]);
+
+  const handleMouseDown = () => setIsPressed(true);
+  const handleMouseUp = () => setIsPressed(false);
+  const handleMouseLeave = () => setIsPressed(false);
+
+  const sizeClasses = {
+    sm: "h-8 min-w-8 text-xs",
+    default: "h-10 min-w-10 text-sm",
+    lg: "h-12 min-w-12 text-base font-semibold",
+  };
+
+  const baseClasses = "relative flex items-center justify-center font-mono transition-all duration-200 ease-out cursor-pointer select-none";
+  
+  const keyClasses = cn(
+    sizeClasses[size],
+    baseClasses,
+    // High contrast colors for visibility
+    "bg-white dark:bg-gray-900 text-gray-900 dark:text-white",
+    "border-2 border-gray-300 dark:border-gray-600",
+    "shadow-[0_4px_0_0_rgba(0,0,0,0.2)] dark:shadow-[0_4px_0_0_rgba(255,255,255,0.1)]",
+    "rounded-lg",
+    // Hover effects
+    "hover:bg-gray-50 dark:hover:bg-gray-800 hover:border-gray-400 dark:hover:border-gray-500",
+    // Animation states
+    isAnimating && "bg-blue-500 dark:bg-blue-400 text-white dark:text-black border-blue-400 dark:border-blue-300 shadow-lg shadow-blue-500/30 scale-105",
+    // Press effects
+    isPressed && "transform translate-y-1 shadow-[0_2px_0_0_rgba(0,0,0,0.2)] dark:shadow-[0_2px_0_0_rgba(255,255,255,0.1)]",
+    className
+  );
+
+  return (
+    <button
+      className={keyClasses}
+      onMouseDown={handleMouseDown}
+      onMouseUp={handleMouseUp}
+      onMouseLeave={handleMouseLeave}
+      type="button"
+    >
+      {children}
+    </button>
+  );
+};
+
+export const KeyboardShortcut: React.FC<KeyboardShortcutProps> = ({ 
+  className = "", 
+  animated = true,
+  theme = "default"
+}) => {
+  return (
+    <div className={cn("flex items-center justify-center gap-2 p-4", className)}>
+      <KeyButton 
+        isHighlighted={animated} 
+        size="lg"
+        theme={theme}
+        delay={0}
+      >
+        ⌥
+      </KeyButton>
+      {/* MODIFIED: Used `text-muted-foreground` for theme compatibility */}
+      <span className="text-muted-foreground text-lg font-light opacity-70">+</span>
+      <KeyButton 
+        isHighlighted={animated} 
+        size="lg"
+        theme={theme}
+        delay={200}
+      >
+        ⌘
+      </KeyButton>
+      {/* MODIFIED: Used `text-muted-foreground` for theme compatibility */}
+      <span className="text-muted-foreground text-lg font-light opacity-70">+</span>
+      <KeyButton 
+        isHighlighted={animated} 
+        size="lg"
+        theme={theme}
+        delay={400}
+      >
+        C
+      </KeyButton>
+    </div>
+  );
+};
+
+// Alternative compact version
+export const KeyboardShortcutCompact: React.FC<KeyboardShortcutProps> = ({ 
+  className = "", 
+  animated = true,
+  theme = "default"
+}) => {
+  return (
+    <div className={cn("inline-flex items-center gap-1", className)}>
+      <KeyButton isHighlighted={animated} size="sm" theme={theme} delay={0}>⌥</KeyButton>
+      <KeyButton isHighlighted={animated} size="sm" theme={theme} delay={100}>⌘</KeyButton>
+      <KeyButton isHighlighted={animated} size="sm" theme={theme} delay={200}>C</KeyButton>
+    </div>
+  );
+};
+
+export default KeyboardShortcut;
+</file>
+
+<file path="src/components/demos/web-platform-demo.tsx">
+import CodeViewer from "@/components/CodeViewer";
+
+const sampleCode = `import Layout from "@/components/Layout";
+import Card from "@/components/Card";
+import FeatureCard from "@/components/FeatureCard";
+import { SciFiButton } from "@/components/ui/scifi-button";
+import NpmCommand from "@/components/NpmCommand";
+import { SciFiGridCard } from "@/components/SciFiGridCard";
+import CTA from "@/components/landing/cta";
+import { KeyboardShortcut } from "@/components/ui/keyboard-shortcut";
+import { CLITerminalDemo } from "@/components/demos/cli-terminal-demo";
+import {
+  VSCodeIcon,
+  TerminalIcon,
+  WebIcon,
+  SpeedIcon,
+  SecurityIcon,
+  ShareIcon,
+} from "@/components/icons";`;
+
+const WebPlatformDemo = () => {
+  return (
+    <CodeViewer
+      title="Language: typescriptreact"
+      code={sampleCode}
+      language="typescript"
+      startingLineNumber={1}
+      className="!h-full" // Force it to take up the full height of its container
+    />
+  );
+};
+
+export { WebPlatformDemo };
+</file>
+
+<file path="src/components/magicui/terminal.tsx">
+"use client";
+
+import { cn } from "@/lib/utils";
+import { motion, MotionProps, useInView } from "motion/react";
+import {
+  Children,
+  createContext,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
+
+interface SequenceContextValue {
+  completeItem: (index: number) => void;
+  activeIndex: number;
+  sequenceStarted: boolean;
+}
+
+const SequenceContext = createContext<SequenceContextValue | null>(null);
+const useSequence = () => useContext(SequenceContext);
+
+const ItemIndexContext = createContext<number | null>(null);
+const useItemIndex = () => useContext(ItemIndexContext);
+
+interface AnimatedSpanProps extends MotionProps {
+  children: React.ReactNode;
+  delay?: number;
+  className?: string;
+  startOnView?: boolean;
+}
+
+export const AnimatedSpan = ({
+  children,
+  delay = 0,
+  className,
+  startOnView = false,
+  ...props
+}: AnimatedSpanProps) => {
+  const elementRef = useRef<HTMLDivElement | null>(null);
+  const isInView = useInView(elementRef as React.RefObject<Element>, {
+    amount: 0.3,
+    once: true,
+  });
+
+  const sequence = useSequence();
+  const itemIndex = useItemIndex();
+  const [hasStarted, setHasStarted] = useState(false);
+
+  useEffect(() => {
+    if (!sequence || itemIndex === null) return;
+    if (!sequence.sequenceStarted) return;
+    if (hasStarted) return;
+
+    if (sequence.activeIndex === itemIndex) {
+      setHasStarted(true);
+    }
+  }, [sequence?.activeIndex, sequence?.sequenceStarted, hasStarted, itemIndex]);
+
+  const shouldAnimate = sequence ? hasStarted : startOnView ? isInView : true;
+
+  return (
+    <motion.div
+      ref={elementRef}
+      initial={{ opacity: 0, y: -5 }}
+      animate={shouldAnimate ? { opacity: 1, y: 0 } : { opacity: 0, y: -5 }}
+      transition={{ duration: 0.3, delay: sequence ? 0 : delay / 1000 }}
+      className={cn("grid text-sm font-normal tracking-tight", className)}
+      onAnimationComplete={() => {
+        if (!sequence) return;
+        if (itemIndex === null) return;
+        sequence.completeItem(itemIndex);
+      }}
+      {...props}
+    >
+      {children}
+    </motion.div>
+  );
+};
+
+interface TypingAnimationProps extends MotionProps {
+  children: string;
+  className?: string;
+  duration?: number;
+  delay?: number;
+  as?: React.ElementType;
+  startOnView?: boolean;
+}
+
+export const TypingAnimation = ({
+  children,
+  className,
+  duration = 60,
+  delay = 0,
+  as: Component = "span",
+  startOnView = true,
+  ...props
+}: TypingAnimationProps) => {
+  if (typeof children !== "string") {
+    throw new Error("TypingAnimation: children must be a string. Received:");
+  }
+
+  const MotionComponent = useMemo(
+    () =>
+      motion.create(Component, {
+        forwardMotionProps: true,
+      }),
+    [Component]
+  );
+
+  const [displayedText, setDisplayedText] = useState<string>("");
+  const [started, setStarted] = useState(false);
+  const elementRef = useRef<HTMLElement | null>(null);
+  const isInView = useInView(elementRef as React.RefObject<Element>, {
+    amount: 0.3,
+    once: true,
+  });
+
+  const sequence = useSequence();
+  const itemIndex = useItemIndex();
+
+  useEffect(() => {
+    if (sequence && itemIndex !== null) {
+      if (!sequence.sequenceStarted) return;
+      if (started) return;
+
+      if (sequence.activeIndex === itemIndex) {
+        setStarted(true);
+      }
+      return;
+    }
+
+    if (!startOnView) {
+      const startTimeout = setTimeout(() => setStarted(true), delay);
+      return () => clearTimeout(startTimeout);
+    }
+
+    if (!isInView) return;
+
+    const startTimeout = setTimeout(() => setStarted(true), delay);
+    return () => clearTimeout(startTimeout);
+  }, [
+    delay,
+    startOnView,
+    isInView,
+    started,
+    sequence?.activeIndex,
+    sequence?.sequenceStarted,
+    itemIndex,
+  ]);
+
+  useEffect(() => {
+    if (!started) return;
+
+    let i = 0;
+    const typingEffect = setInterval(() => {
+      if (i < children.length) {
+        setDisplayedText(children.substring(0, i + 1));
+        i++;
+      } else {
+        clearInterval(typingEffect);
+        if (sequence && itemIndex !== null) {
+          sequence.completeItem(itemIndex);
+        }
+      }
+    }, duration);
+
+    return () => {
+      clearInterval(typingEffect);
+    };
+  }, [children, duration, started]);
+
+  return (
+    <MotionComponent
+      ref={elementRef}
+      className={cn("text-sm font-normal tracking-tight", className)}
+      {...props}
+    >
+      {displayedText}
+    </MotionComponent>
+  );
+};
+
+interface TerminalProps {
+  children: React.ReactNode;
+  className?: string;
+  sequence?: boolean;
+  startOnView?: boolean;
+}
+
+export const Terminal = ({
+  children,
+  className,
+  sequence = true,
+  startOnView = true,
+}: TerminalProps) => {
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  const isInView = useInView(containerRef as React.RefObject<Element>, {
+    amount: 0.3,
+    once: true,
+  });
+
+  const [activeIndex, setActiveIndex] = useState(0);
+  const sequenceHasStarted = sequence ? !startOnView || isInView : false;
+
+  const contextValue = useMemo<SequenceContextValue | null>(() => {
+    if (!sequence) return null;
+
+    return {
+      completeItem: (index: number) => {
+        setActiveIndex((current) =>
+          index === current ? current + 1 : current
+        );
+      },
+      activeIndex,
+      sequenceStarted: sequenceHasStarted,
+    };
+  }, [sequence, activeIndex, sequenceHasStarted]);
+
+  const wrappedChildren = useMemo(() => {
+    if (!sequence) return children;
+
+    const array = Children.toArray(children);
+    return array.map((child, index) => (
+      <ItemIndexContext.Provider key={index} value={index}>
+        {child as React.ReactNode}
+      </ItemIndexContext.Provider>
+    ));
+  }, [children, sequence]);
+
+  const content = (
+    // MODIFIED: Restructured for distinct header/body styling
+    <div
+      ref={containerRef}
+      className={cn(
+        "z-0 h-full max-h-[400px] w-full max-w-lg rounded-xl border border-border",
+        "flex flex-col overflow-hidden" // Use flexbox for layout
+      )}
+    >
+      {/* Header with its own background */}
+      <div className="border-b border-border bg-muted/30 p-4">
+        <div className="flex flex-row gap-x-2">
+          <div className="h-2 w-2 rounded-full bg-red-500"></div>
+          <div className="h-2 w-2 rounded-full bg-yellow-500"></div>
+          <div className="h-2 w-2 rounded-full bg-green-500"></div>
+        </div>
+      </div>
+      {/* Body: <pre> is now the scroll container */}
+      <pre
+        className={cn(
+          "compact-scrollbar flex-1 overflow-auto",
+          className // Pass className here to control body background
+        )}
+      >
+        {/* Code content with padding inside the scroll area */}
+        <code className="grid gap-y-1 p-4">{wrappedChildren}</code>
+      </pre>
+    </div>
+  );
+
+  if (!sequence) return content;
+
+  return (
+    <SequenceContext.Provider value={contextValue}>
+      {content}
+    </SequenceContext.Provider>
+  );
+};
+</file>
+
+<file path="src/components/ui/button.tsx">
+import * as React from "react"
+import { Slot } from "@radix-ui/react-slot"
+import { cva, type VariantProps } from "class-variance-authority"
+import { cn } from "@/lib/utils"
+
+const buttonVariants = cva(
+  "inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
+  {
+    variants: {
+      variant: {
+        default: "bg-primary text-primary-foreground hover:bg-primary/90",
+        destructive:
+          "bg-destructive text-destructive-foreground hover:bg-destructive/90",
+        outline:
+          "border border-input bg-background hover:bg-accent hover:text-accent-foreground",
+        secondary:
+          "bg-secondary text-secondary-foreground hover:bg-secondary/80",
+        ghost: "hover:bg-accent hover:text-accent-foreground",
+        link: "text-primary underline-offset-4 hover:underline",
+      },
+      size: {
+        default: "h-10 px-4 py-2",
+        sm: "h-9 rounded-md px-3",
+        lg: "h-11 rounded-md px-8",
+        icon: "h-10 w-10",
+      },
+    },
+    defaultVariants: {
+      variant: "default",
+      size: "default",
+    },
+  }
+)
+
+export interface ButtonProps
+  extends React.ButtonHTMLAttributes<HTMLButtonElement>,
+    VariantProps<typeof buttonVariants> {
+  asChild?: boolean
+}
+
+const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
+  ({ className, variant, size, asChild = false, ...props }, ref) => {
+    const Comp = asChild ? Slot : "button"
+    return (
+      <Comp
+        className={cn(buttonVariants({ variant, size, className }))}
+        ref={ref}
+        {...props}
+      />
+    )
+  }
+)
+Button.displayName = "Button"
+
+export { Button, buttonVariants }
+</file>
+
+<file path="src/components/ui/keyboard-shortcut.tsx">
+"use client"
+
+import React, { useState, useEffect } from 'react';
+import { Button } from "@/components/ui/button"
+import { cn } from "@/lib/utils"
+
+interface KeyboardShortcutProps {
+  className?: string;
+  animated?: boolean;
+  theme?: "default" | "gradient" | "neon";
+}
+
+const KeyButton = ({
+  children,
+  className = "",
+  isHighlighted = false,
+  size = "default",
+  theme = "default",
+  delay = 0,
+}: {
+  children: React.ReactNode;
+  className?: string;
+  isHighlighted?: boolean;
+  size?: "sm" | "default" | "lg";
+  theme?: "default" | "gradient" | "neon";
+  delay?: number;
+}) => {
+  const [isAnimating, setIsAnimating] = useState(false);
+  const [isPressed, setIsPressed] = useState(false);
+
+  useEffect(() => {
+    if (isHighlighted) {
+      const timer = setTimeout(() => {
+        setIsAnimating(true);
+        setTimeout(() => setIsAnimating(false), 600);
+      }, delay);
+      return () => clearTimeout(timer);
+    }
+  }, [isHighlighted, delay]);
+
+  const handleMouseDown = () => setIsPressed(true);
+  const handleMouseUp = () => setIsPressed(false);
+  const handleMouseLeave = () => setIsPressed(false);
+
+  const sizeClasses = {
+    sm: "h-8 min-w-8 text-xs",
+    default: "h-10 min-w-10 text-sm",
+    lg: "h-12 min-w-12 text-base font-semibold",
+  };
+
+  const baseClasses = "relative flex items-center justify-center font-mono transition-all duration-200 ease-out cursor-pointer select-none";
+  
+  const keyClasses = cn(
+    sizeClasses[size],
+    baseClasses,
+    // High contrast colors for visibility
+    "bg-white dark:bg-gray-900 text-gray-900 dark:text-white",
+    "border-2 border-gray-300 dark:border-gray-600",
+    "shadow-[0_4px_0_0_rgba(0,0,0,0.2)] dark:shadow-[0_4px_0_0_rgba(255,255,255,0.1)]",
+    "rounded-lg",
+    // Hover effects
+    "hover:bg-gray-50 dark:hover:bg-gray-800 hover:border-gray-400 dark:hover:border-gray-500",
+    // Animation states
+    isAnimating && "bg-blue-500 dark:bg-blue-400 text-white dark:text-black border-blue-400 dark:border-blue-300 shadow-lg shadow-blue-500/30 scale-105",
+    // Press effects
+    isPressed && "transform translate-y-1 shadow-[0_2px_0_0_rgba(0,0,0,0.2)] dark:shadow-[0_2px_0_0_rgba(255,255,255,0.1)]",
+    className
+  );
+
+  return (
+    <button
+      className={keyClasses}
+      onMouseDown={handleMouseDown}
+      onMouseUp={handleMouseUp}
+      onMouseLeave={handleMouseLeave}
+      type="button"
+    >
+      {children}
+    </button>
+  );
+};
+
+export const KeyboardShortcut: React.FC<KeyboardShortcutProps> = ({ 
+  className = "", 
+  animated = true,
+  theme = "default"
+}) => {
+  return (
+    <div className={cn("flex items-center justify-center gap-2 p-4", className)}>
+      <KeyButton 
+        isHighlighted={animated} 
+        size="lg"
+        theme={theme}
+        delay={0}
+      >
+        ⌥
+      </KeyButton>
+      <span className="text-white dark:text-black text-lg font-light opacity-70">+</span>
+      <KeyButton 
+        isHighlighted={animated} 
+        size="lg"
+        theme={theme}
+        delay={200}
+      >
+        ⌘
+      </KeyButton>
+      <span className="text-white dark:text-black text-lg font-light opacity-70">+</span>
+      <KeyButton 
+        isHighlighted={animated} 
+        size="lg"
+        theme={theme}
+        delay={400}
+      >
+        C
+      </KeyButton>
+    </div>
+  );
+};
+
+// Alternative compact version
+export const KeyboardShortcutCompact: React.FC<KeyboardShortcutProps> = ({ 
+  className = "", 
+  animated = true,
+  theme = "default"
+}) => {
+  return (
+    <div className={cn("inline-flex items-center gap-1", className)}>
+      <KeyButton isHighlighted={animated} size="sm" theme={theme} delay={0}>⌥</KeyButton>
+      <KeyButton isHighlighted={animated} size="sm" theme={theme} delay={100}>⌘</KeyButton>
+      <KeyButton isHighlighted={animated} size="sm" theme={theme} delay={200}>C</KeyButton>
+    </div>
+  );
+};
+
+export default KeyboardShortcut;
+</file>
+
+<file path="src/components/ui/keyboard.tsx">
+// Re-export for compatibility with the original structure
+export { KeyboardShortcut as Component, KeyboardShortcutCompact } from "./keyboard-shortcut";
+export { default } from "./keyboard-shortcut";
+</file>
+
+<file path="public/favicon.svg">
+<svg width="17" height="17" viewBox="0 0 17 17" fill="none" xmlns="http://www.w3.org/2000/svg">
+<rect width="17" height="17" fill="white"/>
+<path d="M6 13.5V12H4.5V10.5H3V6H4.5V4.5H6V3H12V4.5H13.5V6H10.5V4.5H7.5V6H6V10.5H7.5V12H10.5V10.5H13.5V12H12V13.5H6Z" fill="#160D0D"/>
+</svg>
+</file>
+
+<file path="src/components/icons/index.tsx">
+// Simple icon components to replace phosphor icons
+export const CodeIcon = ({ className }: { className?: string }) => (
+  <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+  </svg>
+);
+
+export const ShareIcon = ({ className }: { className?: string }) => (
+  <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z" />
+  </svg>
+);
+
+export const LinkIcon = ({ className }: { className?: string }) => (
+  <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+  </svg>
+);
+
+export const TerminalIcon = ({ className }: { className?: string }) => (
+  <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <rect x="2" y="3" width="20" height="14" rx="2" ry="2" strokeWidth={2} />
+    <line x1="8" y1="21" x2="16" y2="21" strokeWidth={2} />
+    <line x1="12" y1="17" x2="12" y2="21" strokeWidth={2} />
+  </svg>
+);
+
+export const VSCodeIcon = ({ className }: { className?: string }) => (
+  <svg className={className} fill="currentColor" viewBox="0 0 24 24">
+    <path d="M23.15 2.587L18.21.21a1.494 1.494 0 0 0-1.705.29l-9.46 8.63-4.12-3.128a.999.999 0 0 0-1.276.057L.327 7.261A1 1 0 0 0 .326 8.74L3.899 12 .326 15.26a1 1 0 0 0 .001 1.479L1.65 17.94a.999.999 0 0 0 1.276.057l4.12-3.128 9.46 8.63a1.492 1.492 0 0 0 1.704.29l4.942-2.377A1.5 1.5 0 0 0 24 20.06V3.939a1.5 1.5 0 0 0-.85-1.352zm-5.146 14.861L10.826 12l7.178-5.448v10.896z"/>
+  </svg>
+);
+
+export const WebIcon = ({ className }: { className?: string }) => (
+  <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <circle cx="12" cy="12" r="10" strokeWidth={2} />
+    <line x1="2" y1="12" x2="22" y2="12" strokeWidth={2} />
+    <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" strokeWidth={2} />
+  </svg>
+);
+
+export const SpeedIcon = ({ className }: { className?: string }) => (
+  <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+  </svg>
+);
+
+export const SecurityIcon = ({ className }: { className?: string }) => (
+  <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+  </svg>
+);
+
+export const ArrowRightIcon = ({ className }: { className?: string }) => (
+  <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+  </svg>
+);
+
+export const CheckIcon = ({ className }: { className?: string }) => (
+  <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+  </svg>
+);
+</file>
+
+<file path="src/components/ui/grid-pattern.tsx">
+export const GridPatternBg = () => {
+  return (
+    <div className="relative min-h-screen w-full text-foreground/80">
+      <div
+        className="absolute inset-0 z-[1]"
+        style={{
+          background:
+            'radial-gradient(ellipse 40% 16% at 50% 15%, var(--accent) 0%, transparent 70%)',
+          filter: 'blur(20px)',
+          opacity: 0.15,
+        }}
+      />
+      <div
+        className="absolute inset-0"
+        style={{
+          backgroundImage: `
+          linear-gradient(to right, hsl(var(--border)) 1px, transparent 1px),
+          linear-gradient(to bottom, hsl(var(--border)) 1px, transparent 1px)
+          `,
+          backgroundSize: '30px 30px',
+          maskImage:
+            'radial-gradient(ellipse 40% 16% at 50% 15%, black 0%, black 40%, transparent 100%)',
+          WebkitMaskImage:
+            'radial-gradient(ellipse 40% 16% at 50% 15%, black 0%, black 40%, transparent 100%)',
+          opacity: 0.3,
+        }}
+      />
+    </div>
+  );
+};
+</file>
+
+<file path="src/components/ui/scifi-button.tsx">
+'use client';
+
+import { Slot } from '@radix-ui/react-slot';
+import { forwardRef } from 'react';
+import { cn } from '@/lib/utils';
+
+interface SciFiButtonProps
+  extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+  asChild?: boolean;
+  size?: 'sm' | 'md' | 'lg';
+  variant?: 'default' | 'outline';
+}
+
+const SciFiButton = forwardRef<HTMLButtonElement, SciFiButtonProps>(
+  ({ className, asChild = false, children, size = 'md', variant = 'default', ...props }, ref) => {
+    const Comp = asChild ? Slot : 'button';
+
+    const sizeClasses = {
+      sm: 'h-8 px-3 py-1 text-sm',
+      md: 'h-9 px-4 py-2 text-sm',
+      lg: 'h-11 px-6 py-3 text-base',
+    };
+
+    const variantClasses = {
+      default: 'bg-foreground/5 text-foreground backdrop-blur-[50px]',
+      outline: 'bg-transparent border-2 border-foreground/20 text-foreground',
+    };
+
+    return (
+      <div className="group relative inline-block">
+        <Comp
+          className={cn(
+            'relative inline-flex cursor-pointer items-center justify-center gap-2 overflow-hidden whitespace-nowrap font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent disabled:pointer-events-none disabled:opacity-50',
+            'rounded',
+            'shadow-[0px_-82px_68px_-109px_inset_rgba(255,255,255,0.3),0px_98px_100px_-170px_inset_rgba(255,255,255,0.6),0px_4px_18px_-8px_inset_rgba(255,255,255,0.6),0px_1px_40px_-14px_inset_rgba(255,255,255,0.3)]',
+            'border border-border hover:animate-[borderGlitch_0.6s_ease-in-out]',
+            'text-center font-normal tracking-[-0.18px]',
+            'active:scale-[0.98]',
+            sizeClasses[size],
+            variantClasses[variant],
+            className
+          )}
+          ref={ref}
+          {...(asChild
+            ? {}
+            : {
+                type:
+                  (props as React.ButtonHTMLAttributes<HTMLButtonElement>)
+                    .type ?? 'button',
+              })}
+          {...props}
+        >
+          {children}
+        </Comp>
+
+        <div className="pointer-events-none absolute inset-0">
+          <div className="absolute top-0 left-0 h-2 w-2 group-hover:animate-[cornerGlitch_0.6s_ease-in-out]">
+            <div className="absolute top-0 left-0.5 h-0.5 w-1.5 origin-left bg-foreground" />
+            <div className="absolute top-0 left-0 h-2 w-0.5 origin-top bg-foreground" />
+          </div>
+
+          <div className="-scale-x-[1] absolute top-0 right-0 h-2 w-2 group-hover:animate-[cornerGlitch_0.6s_ease-in-out]">
+            <div className="absolute top-0 left-0.5 h-0.5 w-1.5 origin-left bg-foreground" />
+            <div className="absolute top-0 left-0 h-2 w-0.5 origin-top bg-foreground" />
+          </div>
+
+          <div className="-scale-y-[1] absolute bottom-0 left-0 h-2 w-2 group-hover:animate-[cornerGlitch_0.6s_ease-in-out]">
+            <div className="absolute top-0 left-0.5 h-0.5 w-1.5 origin-left bg-foreground" />
+            <div className="absolute top-0 left-0 h-2 w-0.5 origin-top bg-foreground" />
+          </div>
+
+          <div className="-scale-[1] absolute right-0 bottom-0 h-2 w-2 group-hover:animate-[cornerGlitch_0.6s_ease-in-out]">
+            <div className="absolute top-0 left-0.5 h-0.5 w-1.5 origin-left bg-foreground" />
+            <div className="absolute top-0 left-0 h-2 w-0.5 origin-top bg-foreground" />
+          </div>
+        </div>
+      </div>
+    );
+  }
+);
+
+SciFiButton.displayName = 'SciFiButton';
+
+export { SciFiButton };
+</file>
+
+<file path="src/components/Card.tsx">
+import { ReactNode } from 'react';
+
+interface CardProps {
+  children: ReactNode;
+  className?: string;
+}
+
+export default function Card({ children, className = '' }: CardProps) {
+  return (
+    <div className={`bg-card border border-border rounded-lg p-6 shadow-sm ${className}`}>
+      {children}
+    </div>
+  );
+}
+</file>
+
+<file path="src/components/MagicSVG.tsx">
+'use client';
+
+import {
+  animate,
+  motion,
+  useMotionTemplate,
+  useMotionValue,
+} from 'motion/react';
+import React, { useCallback, useEffect, useRef } from 'react';
+import { cn } from '@/lib/utils';
+
+interface MagicSVGProps {
+  children: React.ReactNode;
+  width: number;
+  height: number;
+  className?: string;
+  gradientSize?: number;
+  gradientFrom?: string;
+  gradientTo?: string;
+  strokeWidth?: number;
+  fill?: string;
+  strokeColor?: string;
+}
+
+export function MagicSVG({
+  children,
+  width,
+  height,
+  className,
+  gradientSize = 50,
+  gradientFrom = '#9E7AFF',
+  gradientTo = '#FE8BBB',
+  strokeWidth = 1,
+  fill = 'none',
+  strokeColor = '#2C2C2C',
+}: MagicSVGProps) {
+  const svgRef = useRef<SVGSVGElement>(null);
+  const animatedX = useMotionValue(-gradientSize * 2);
+  const animatedY = useMotionValue(-gradientSize * 2);
+
+  const handleMouseMove = useCallback(
+    (e: MouseEvent) => {
+      if (svgRef.current) {
+        const rect = svgRef.current.getBoundingClientRect();
+        const svgX = (e.clientX - rect.left) * (width / rect.width);
+        const svgY = (e.clientY - rect.top) * (height / rect.height);
+
+        animate(animatedX, svgX, {
+          type: 'spring',
+          stiffness: 200,
+          damping: 30,
+          mass: 0.5,
+        });
+
+        animate(animatedY, svgY, {
+          type: 'spring',
+          stiffness: 200,
+          damping: 30,
+          mass: 0.5,
+        });
+      }
+    },
+    [animatedX, animatedY, width, height]
+  );
+
+  const handleMouseLeave = useCallback(() => {
+    animate(animatedX, -gradientSize * 2, {
+      type: 'spring',
+      stiffness: 150,
+      damping: 25,
+    });
+
+    animate(animatedY, -gradientSize * 2, {
+      type: 'spring',
+      stiffness: 150,
+      damping: 25,
+    });
+  }, [animatedX, animatedY, gradientSize]);
+
+  const handleMouseEnter = useCallback(() => {
+    document.addEventListener('mousemove', handleMouseMove);
+  }, [handleMouseMove]);
+
+  useEffect(() => {
+    const svgElement = svgRef.current;
+    if (svgElement) {
+      svgElement.addEventListener('mouseenter', handleMouseEnter);
+      svgElement.addEventListener('mouseleave', handleMouseLeave);
+    }
+
+    return () => {
+      if (svgElement) {
+        svgElement.removeEventListener('mouseenter', handleMouseEnter);
+        svgElement.removeEventListener('mouseleave', handleMouseLeave);
+      }
+      document.removeEventListener('mousemove', handleMouseMove);
+    };
+  }, [handleMouseEnter, handleMouseLeave, handleMouseMove]);
+
+  useEffect(() => {
+    animatedX.set(-gradientSize * 2);
+    animatedY.set(-gradientSize * 2);
+  }, [gradientSize, animatedX, animatedY]);
+
+  const gradientId = `magic-gradient-${Math.random().toString(36).substr(2, 9)}`;
+  const maskId = `magic-mask-${Math.random().toString(36).substr(2, 9)}`;
+
+  return (
+    <motion.svg
+      aria-label="Magic SVG"
+      className={cn('cursor-pointer transition-all duration-300', className)}
+      fill="none"
+      height={height}
+      ref={svgRef}
+      style={{ maxWidth: '100%', height: 'auto' }}
+      viewBox={`0 0 ${width} ${height}`}
+      width={width}
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <title>Magic SVG</title>
+      <defs>
+        <motion.radialGradient
+          cx={useMotionTemplate`${animatedX}`}
+          cy={useMotionTemplate`${animatedY}`}
+          gradientUnits="userSpaceOnUse"
+          id={gradientId}
+          r={gradientSize}
+        >
+          <stop offset="0%" stopColor={gradientFrom} />
+          <stop offset="50%" stopColor={gradientTo} />
+          <stop offset="100%" stopColor="transparent" />
+        </motion.radialGradient>
+        <mask id={maskId}>
+          <rect fill="black" height="100%" width="100%" />
+          <motion.circle
+            cx={useMotionTemplate`${animatedX}`}
+            cy={useMotionTemplate`${animatedY}`}
+            fill="white"
+            r={gradientSize}
+          />
+        </mask>
+      </defs>
+
+      {React.Children.map(children, (child) => {
+        if (React.isValidElement(child)) {
+          const childType = (child as React.ReactElement).type;
+          if (
+            childType === 'defs' ||
+            childType === 'mask' ||
+            childType === 'clipPath'
+          ) {
+            return child;
+          }
+        }
+        return null;
+      })}
+
+      <g>
+        {React.Children.map(children, (child) => {
+          if (React.isValidElement(child)) {
+            const childType = (child as React.ReactElement).type;
+            if (
+              childType !== 'defs' &&
+              childType !== 'mask' &&
+              childType !== 'clipPath'
+            ) {
+              return React.cloneElement(child as React.ReactElement<React.SVGProps<SVGElement>>, {
+                stroke: strokeColor,
+                strokeWidth,
+                fill,
+              });
+            }
+          }
+          return null;
+        })}
+      </g>
+
+      <g mask={`url(#${maskId})`}>
+        {React.Children.map(children, (child) => {
+          if (React.isValidElement(child)) {
+            const childType = (child as React.ReactElement).type;
+            if (
+              childType !== 'defs' &&
+              childType !== 'mask' &&
+              childType !== 'clipPath'
+            ) {
+              return React.cloneElement(child as React.ReactElement<React.SVGProps<SVGElement>>, {
+                stroke: `url(#${gradientId})`,
+                strokeWidth: strokeWidth + 1,
+                fill,
+              });
+            }
+          }
+          return null;
+        })}
+      </g>
+    </motion.svg>
+  );
+}
+</file>
+
+<file path="src/components/SciFiGridCard.tsx">
+import type { ComponentType } from "react";
+import { cn } from "@/lib/utils";
+import { GridPatternBg } from "./ui/grid-pattern";
+
+interface GridCard {
+  title: string;
+  description: string;
+  icon: ComponentType<{ className?: string }>;
+}
+
+interface SciFiGridCardProps extends GridCard {
+  className?: string;
+}
+
+export const SciFiGridCard = ({
+  title,
+  description,
+  icon: Icon,
+  className,
+}: SciFiGridCardProps) => {
+  return (
+    <div
+      className={cn(
+        "group relative w-full overflow-hidden",
+        "min-h-[340px] sm:min-h-[380px] lg:min-h-[420px]",
+        className
+      )}
+    >
+      <div className="absolute inset-0">
+        <GridPatternBg />
+      </div>
+
+      <div className="relative h-full border border-border bg-transparent px-5 transition-all duration-300 sm:px-6 lg:px-8">
+        <div className="pointer-events-none absolute inset-0">
+          <div className="absolute top-0 left-0 h-2 w-2 group-hover:animate-[cornerGlitch_0.6s_ease-in-out]">
+            <div className="absolute top-0 left-0.5 h-0.5 w-1.5 origin-left bg-foreground" />
+            <div className="absolute top-0 left-0 h-2 w-0.5 origin-top bg-foreground" />
+          </div>
+          <div className="-scale-x-[1] absolute top-0 right-0 h-2 w-2 group-hover:animate-[cornerGlitch_0.6s_ease-in-out]">
+            <div className="absolute top-0 left-0.5 h-0.5 w-1.5 origin-left bg-foreground" />
+            <div className="absolute top-0 left-0 h-2 w-0.5 origin-top bg-foreground" />
+          </div>
+          <div className="-scale-y-[1] absolute bottom-0 left-0 h-2 w-2 group-hover:animate-[cornerGlitch_0.6s_ease-in-out]">
+            <div className="absolute top-0 left-0.5 h-0.5 w-1.5 origin-left bg-foreground" />
+            <div className="absolute top-0 left-0 h-2 w-0.5 origin-top bg-foreground" />
+          </div>
+          <div className="-scale-[1] absolute right-0 bottom-0 h-2 w-2 group-hover:animate-[cornerGlitch_0.6s_ease-in-out]">
+            <div className="absolute top-0 left-0.5 h-0.5 w-1.5 origin-left bg-foreground" />
+            <div className="absolute top-0 left-0 h-2 w-0.5 origin-top bg-foreground" />
+          </div>
+        </div>
+        <div className="relative flex h-full flex-col items-center justify-center py-6 sm:py-8">
+          <div className="mb-6 rounded border border-border bg-card p-4 shadow-[inset_0_1px_3px_rgba(0,0,0,0.06)] sm:mb-8 sm:p-5">
+            <Icon className="h-10 w-10 text-foreground/80 transition-colors duration-300 group-hover:text-foreground sm:h-12 sm:w-12" />
+          </div>
+          <h3 className="px-2 pb-6 text-center font-medium text-2xl text-foreground transition-colors duration-300 group-hover:text-foreground/90 sm:pb-8 sm:text-3xl lg:pb-10">
+            {title}
+          </h3>
+          <p className="px-2 text-center text-base text-muted-foreground/70 leading-relaxed transition-colors duration-300 group-hover:text-muted-foreground sm:text-lg">
+            {description}
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+};
+</file>
+
+<file path="src/components/ThemeToggle.tsx">
+'use client';
+
+import { useTheme } from '@/contexts/ThemeContext';
+import { useEffect, useState } from 'react';
+
+export default function ThemeToggle() {
+  const { theme, setTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) {
+    return (
+      <button className="p-2 rounded-lg hover:bg-muted transition-colors">
+        <div className="w-5 h-5" />
+      </button>
+    );
+  }
+
+  const toggleTheme = () => {
+    setTheme(theme === 'light' ? 'dark' : 'light');
+  };
+
+  const getIcon = () => {
+    if (theme === 'light') {
+      return (
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+        </svg>
+      );
+    } else {
+      return (
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+        </svg>
+      );
+    }
+  };
+
+  return (
+    <button
+      onClick={toggleTheme}
+      className="p-2 rounded-lg hover:bg-muted transition-colors text-muted-foreground hover:text-foreground"
+      title={theme === 'light' ? 'Switch to dark mode' : 'Switch to light mode'}
+      aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
+    >
+      {getIcon()}
+    </button>
+  );
+}
+</file>
+
+<file path="src/components/Wordmark.tsx">
+'use client';
+
+import { useTheme } from '@/contexts/ThemeContext';
+import { MagicSVG } from './MagicSVG';
+
+export const Wordmark = () => {
+  const { theme } = useTheme();
+  
+  return (
+    <div className="w-full overflow-hidden">
+      <div className="flex w-full items-center justify-center">
+        <div className="w-full max-w-none">
+          <MagicSVG
+            className="h-auto w-full"
+            gradientFrom={theme === 'dark' ? '#9E7AFF' : '#8B5CF6'}
+            gradientSize={200}
+            gradientTo={theme === 'dark' ? '#FE8BBB' : '#EC4899'}
+            height={400}
+            strokeColor={theme === 'dark' ? '#404040' : '#737373'}
+            strokeWidth={1}
+            width={2000}
+          >
+            <text
+              x="1000"
+              y="280"
+              textAnchor="middle"
+              fontSize="240"
+              fontWeight="900"
+              fontFamily="Space Grotesk, sans-serif"
+              letterSpacing="0.15em"
+            >
+              CODESHARE
+            </text>
+          </MagicSVG>
+        </div>
+      </div>
+    </div>
+  );
+};
+</file>
+
+<file path="src/contexts/ThemeContext.tsx">
+'use client';
+
+import { createContext, useContext, useEffect, useState } from 'react';
+
+type Theme = 'light' | 'dark';
+
+interface ThemeContextType {
+  theme: Theme;
+  setTheme: (theme: Theme) => void;
+}
+
+const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
+
+export function ThemeProvider({ children }: { children: React.ReactNode }) {
+  const [theme, setTheme] = useState<Theme>('light');
+
+  useEffect(() => {
+    // Get theme from localStorage or default to system preference
+    const savedTheme = localStorage.getItem('theme') as Theme;
+    if (savedTheme && ['light', 'dark'].includes(savedTheme)) {
+      setTheme(savedTheme);
+    } else {
+      // Default to system preference
+      const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      setTheme(systemTheme);
+    }
+  }, []);
+
+  useEffect(() => {
+    const root = window.document.documentElement;
+    
+    // Remove previous theme classes
+    root.classList.remove('light', 'dark');
+    
+    // Add current theme class
+    root.classList.add(theme);
+    
+    // Save to localStorage
+    localStorage.setItem('theme', theme);
+  }, [theme]);
+
+  return (
+    <ThemeContext.Provider value={{ theme, setTheme }}>
+      {children}
+    </ThemeContext.Provider>
+  );
+}
+
+export function useTheme() {
+  const context = useContext(ThemeContext);
+  if (context === undefined) {
+    throw new Error('useTheme must be used within a ThemeProvider');
+  }
+  return context;
+}
+</file>
+
+<file path="src/lib/utils.ts">
+import { clsx, type ClassValue } from 'clsx';
+
+export function cn(...inputs: ClassValue[]) {
+  return clsx(inputs);
+}
+</file>
+
+<file path="src/pages/_document.tsx">
+import { Html, Head, Main, NextScript } from "next/document";
+
+export default function Document() {
+  return (
+    <Html lang="en">
+      <Head />
+      <body className="antialiased">
+        <Main />
+        <NextScript />
+      </body>
+    </Html>
+  );
+}
+</file>
+
+<file path="src/pages/docs.tsx">
+import Layout from "@/components/Layout";
+import { SciFiButton } from "@/components/ui/scifi-button";
+
+export default function Documentation() {
+  return (
+    <Layout
+      title="Documentation - Codeshare"
+      description="Learn how to use Codeshare for fast code sharing"
+    >
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-16">
+        <div className="max-w-4xl mx-auto">
+          {/* Header */}
+          <div className="text-center mb-16">
+            <h1 className="text-4xl md:text-6xl font-bold text-foreground mb-6">
+              Documentation
+            </h1>
+            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+              Everything you need to know about using Codeshare for
+              lightning-fast code sharing.
+            </p>
+          </div>
+
+          {/* Coming Soon Section */}
+          <div className="bg-card border border-border rounded-lg p-8 text-center">
+            <div className="mb-6">
+              <div className="w-16 h-16 mx-auto mb-4 bg-primary/10 rounded-full flex items-center justify-center">
+                <svg
+                  className="w-8 h-8 text-primary"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                  />
+                </svg>
+              </div>
+              <h2 className="text-2xl font-semibold text-foreground mb-2">
+                Documentation Coming Soon
+              </h2>
+              <p className="text-muted-foreground mb-6">
+                We&apos;re working hard to create comprehensive documentation
+                for Codeshare. In the meantime, check out our GitHub repository
+                for setup instructions and examples.
+              </p>
+            </div>
+
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <SciFiButton asChild>
+                <a
+                  href="https://github.com/Sarthakischill/codeshare-project"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  View on GitHub
+                </a>
+              </SciFiButton>
+              <SciFiButton asChild>
+                <a
+                  href="https://marketplace.visualstudio.com/items?itemName=Sarthakischill.codeshare-by-sarthak"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Install Extension
+                </a>
+              </SciFiButton>
+            </div>
+          </div>
+
+          {/* Quick Links */}
+          <div className="grid md:grid-cols-3 gap-6 mt-12">
+            <div className="bg-card border border-border rounded-lg p-6">
+              <h3 className="text-lg font-semibold text-foreground mb-2">
+                VS Code Extension
+              </h3>
+              <p className="text-sm text-muted-foreground mb-4">
+                Install the extension to share code directly from your editor.
+              </p>
+              <a
+                href="https://marketplace.visualstudio.com/items?itemName=Sarthakischill.codeshare-by-sarthak"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-primary hover:underline text-sm"
+              >
+                Get Extension →
+              </a>
+            </div>
+
+            <div className="bg-card border border-border rounded-lg p-6">
+              <h3 className="text-lg font-semibold text-foreground mb-2">
+                CLI Tool
+              </h3>
+              <p className="text-sm text-muted-foreground mb-4">
+                Use the command line interface for quick code sharing.
+              </p>
+              <a
+                href="https://www.npmjs.com/package/get-codeshare"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-primary hover:underline text-sm"
+              >
+                View on NPM →
+              </a>
+            </div>
+
+            <div className="bg-card border border-border rounded-lg p-6">
+              <h3 className="text-lg font-semibold text-foreground mb-2">
+                Contributing
+              </h3>
+              <p className="text-sm text-muted-foreground mb-4">
+                Help us improve Codeshare by contributing to the project.
+              </p>
+              <a
+                href="https://github.com/Sarthakischill/codeshare-project/blob/main/CONTRIBUTING.md"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-primary hover:underline text-sm"
+              >
+                Learn More →
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </Layout>
+  );
+}
+</file>
+
+<file path="eslint.config.mjs">
+import { dirname } from "path";
+import { fileURLToPath } from "url";
+import { FlatCompat } from "@eslint/eslintrc";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+const compat = new FlatCompat({
+  baseDirectory: __dirname,
+});
+
+const eslintConfig = [
+  ...compat.extends("next/core-web-vitals", "next/typescript"),
+];
+
+export default eslintConfig;
+</file>
+
+<file path="next.config.ts">
+import type { NextConfig } from "next";
+
+const nextConfig: NextConfig = {
+  /* config options here */
+  reactStrictMode: true,
+};
+
+export default nextConfig;
+</file>
+
+<file path="tsconfig.json">
+{
+  "compilerOptions": {
+    "target": "ES2017",
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "jsx": "preserve",
+    "incremental": true,
+    "paths": {
+      "@/*": ["./src/*"]
+    }
+  },
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx"],
+  "exclude": ["node_modules"]
+}
+</file>
+
+<file path="src/components/landing/cta.tsx">
+"use client";
+
+import { ArrowRightIcon } from "@/components/icons";
+import { SciFiButton } from "@/components/ui/scifi-button";
+
+export default function CTA() {
+  return (
+    <div className="w-full">
+      <div className="mx-auto max-w-7xl px-4 py-24 text-center sm:px-6 lg:px-8 lg:py-32">
+        <div className="space-y-8">
+          <h2 className="font-semibold text-4xl leading-tight tracking-tight sm:text-5xl lg:text-6xl">
+            <span className="block">Ready to transform</span>
+            <span className="block text-muted-foreground">
+              your code sharing?
+            </span>
+          </h2>
+
+          <p className="mx-auto max-w-3xl text-lg text-muted-foreground sm:text-xl">
+            Join thousands of developers who&apos;ve made code sharing
+            effortless with Codeshare.
+          </p>
+
+          <div className="flex flex-col items-center gap-4 pt-4 sm:flex-row sm:justify-center">
+            <SciFiButton
+              onClick={() =>
+                window.open(
+                  "https://marketplace.visualstudio.com/items?itemName=Sarthakischill.codeshare-by-sarthak",
+                  "_blank",
+                  "noopener,noreferrer"
+                )
+              }
+              size="lg"
+              className="w-full sm:w-auto"
+            >
+              Install Extension
+              <ArrowRightIcon className="ml-2 h-4 w-4" />
+            </SciFiButton>
+
+            <SciFiButton
+              onClick={() =>
+                window.open(
+                  "https://www.npmjs.com/package/get-codeshare",
+                  "_blank"
+                )
+              }
+              variant="outline"
+              size="lg"
+              className="w-full sm:w-auto"
+            >
+              Try CLI Tool
+            </SciFiButton>
+          </div>
+
+          <div className="pt-8">
+            <p className="text-muted-foreground text-sm">
+              Free forever • No account required • Works everywhere
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+</file>
+
+<file path="src/components/FeatureCard.tsx">
+import { ReactNode } from 'react';
+import Card from './Card';
+import Image from 'next/image';
+import { cn } from '@/lib/utils'; // Make sure this import is present
+
+interface FeatureCardProps {
+  title: string;
+  description: string;
+  imageUrl?: string;
+  icon?: ReactNode;
+  children?: ReactNode;
+}
+
+export default function FeatureCard({ title, description, imageUrl, icon, children }: FeatureCardProps) {
+  // Define the glow/shadow style to reuse it
+  const glowAndShadowClasses = "bg-card/50 backdrop-blur-sm shadow-[0px_-82px_68px_-109px_inset_rgba(255,255,255,0.1),0px_98px_100px_-170px_inset_rgba(255,255,255,0.2),0px_4px_18px_-8px_inset_rgba(255,255,255,0.2),0px_1px_40px_-14px_inset_rgba(255,255,255,0.1)]";
+
+  return (
+    <Card className="flex flex-col text-center h-full group-hover:bg-card/80 backdrop-blur-sm">
+      {/* Icon or Image */}
+      <div className="flex justify-center mb-6">
+        {imageUrl === "keyboard-shortcut" ? (
+          // MODIFIED: Applied glow classes and removed bg-muted/20
+          <div className={cn("relative w-full aspect-video rounded-lg overflow-hidden border border-border flex items-center justify-center", glowAndShadowClasses)}>
+            {children}
+          </div>
+        ) : imageUrl === "cli-terminal" ? (
+          // MODIFIED: Applied glow classes
+          <div className={cn("relative w-full aspect-video rounded-lg overflow-hidden border border-border flex items-center justify-center", glowAndShadowClasses)}>
+            {children}
+          </div>
+        ) : imageUrl === "web-platform" ? (
+          // MODIFIED: Simplified wrapper to prevent double-border and let inner component shine
+          <div className="relative w-full aspect-video">
+            {children}
+          </div>
+        ) : imageUrl ? (
+          <div className="relative w-full aspect-video rounded-lg overflow-hidden bg-muted/20 shadow-lg">
+            <Image
+              src={imageUrl}
+              alt={title}
+              fill
+              className="object-cover transition-transform duration-300 group-hover:scale-105"
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+            />
+          </div>
+        ) : icon ? (
+          <div className="w-16 h-16 flex items-center justify-center rounded-lg bg-accent/10 text-accent">
+            {icon}
+          </div>
+        ) : null}
+      </div>
+
+      {/* Content */}
+      <div className="flex-1">
+        <h3 className="text-xl font-semibold text-foreground mb-3">{title}</h3>
+        <p className="text-muted-foreground leading-relaxed mb-4">{description}</p>
+        {imageUrl !== "keyboard-shortcut" && imageUrl !== "cli-terminal" && imageUrl !== "web-platform" && children}
+      </div>
+    </Card>
+  );
+}
+</file>
+
+<file path="src/pages/_app.tsx">
+import "@/styles/globals.css";
+import type { AppProps } from "next/app";
+import { ThemeProvider } from "@/contexts/ThemeContext";
+
+export default function App({ Component, pageProps }: AppProps) {
+  return (
+    <ThemeProvider>
+      <Component {...pageProps} />
+    </ThemeProvider>
+  );
+}
+</file>
+
+<file path="postcss.config.mjs">
+const config = {
+  plugins: {
+    tailwindcss: {},
+    autoprefixer: {},
+  },
+};
+
+export default config;
+</file>
+
+<file path="tailwind.config.ts">
+import type { Config } from 'tailwindcss'
+
+const config: Config = {
+  content: [
+    './src/pages/**/*.{js,ts,jsx,tsx,mdx}',
+    './src/components/**/*.{js,ts,jsx,tsx,mdx}',
+    './src/app/**/*.{js,ts,jsx,tsx,mdx}',
+  ],
+  darkMode: 'class',
+  theme: {
+    extend: {
+      fontFamily: {
+        sans: ['Space Grotesk', 'system-ui', 'sans-serif'],
+        mono: ['JetBrains Mono', 'Consolas', 'monospace'],
+        pixel: ['Press Start 2P', 'monospace'],
+      },
+      colors: {
+        // Pure grayscale palette - no blue tints
+        gray: {
+          50: '#fafafa',
+          100: '#f5f5f5',
+          200: '#e5e5e5',
+          300: '#d4d4d4',
+          400: '#a3a3a3',
+          500: '#737373',
+          600: '#525252',
+          700: '#404040',
+          800: '#262626',
+          900: '#171717',
+          950: '#0a0a0a',
+        },
+        // Semantic color tokens
+        background: 'hsl(var(--background))',
+        foreground: 'hsl(var(--foreground))',
+        card: 'hsl(var(--card))',
+        'card-foreground': 'hsl(var(--card-foreground))',
+        border: 'hsl(var(--border))',
+        muted: 'hsl(var(--muted))',
+        'muted-foreground': 'hsl(var(--muted-foreground))',
+        accent: 'hsl(var(--accent))',
+        'accent-foreground': 'hsl(var(--accent-foreground))',
+        ring: 'hsl(var(--ring))',
+        // Keep minimal colors for functionality
+        blue: {
+          500: '#3b82f6',
+          600: '#2563eb',
+        },
+        green: {
+          500: '#22c55e',
+          600: '#16a34a',
+        },
+        red: {
+          500: '#ef4444',
+          600: '#dc2626',
+        },
+      },
+      spacing: {
+        '18': '4.5rem',
+        '88': '22rem',
+      },
+      animation: {
+        'fade-in': 'fadeIn 0.5s ease-in-out',
+        'slide-up': 'slideUp 0.3s ease-out',
+        'borderGlitch': 'borderGlitch 0.6s ease-in-out',
+        'cornerGlitch': 'cornerGlitch 0.6s ease-in-out',
+      },
+      keyframes: {
+        fadeIn: {
+          '0%': { opacity: '0' },
+          '100%': { opacity: '1' },
+        },
+        slideUp: {
+          '0%': { transform: 'translateY(10px)', opacity: '0' },
+          '100%': { transform: 'translateY(0)', opacity: '1' },
+        },
+        borderGlitch: {
+          '0%, 100%': { opacity: '1' },
+          '50%': { opacity: '0.8' },
+        },
+        cornerGlitch: {
+          '0%, 100%': { opacity: '1' },
+          '50%': { opacity: '0.6' },
+        },
+      },
+    },
+  },
+  plugins: [],
+}
+
+export default config
+</file>
+
+<file path="src/components/CodeViewer.tsx">
+"use client";
+
+import { useState } from "react";
+import SyntaxHighlighter from "react-syntax-highlighter";
+import {
+  atomOneDark,
+  atomOneLight,
+} from "react-syntax-highlighter/dist/cjs/styles/hljs";
+import { useTheme } from "@/contexts/ThemeContext";
+import { SciFiButton } from "@/components/ui/scifi-button";
+import { cn } from "@/lib/utils";
+
+interface CodeViewerProps {
+  title: string;
+  code: string | null;
+  language: string | null;
+  startingLineNumber?: number;
+  error?: string | null;
+  className?: string;
+}
+
+export default function CodeViewer({
+  title,
+  code,
+  language,
+  startingLineNumber = 1,
+  error,
+  className,
+}: CodeViewerProps) {
+  const [copyText, setCopyText] = useState("Copy");
+  const { theme } = useTheme();
+
+  const handleCopy = () => {
+    if (code && !error) {
+      navigator.clipboard.writeText(code);
+      setCopyText("Copied!");
+      setTimeout(() => setCopyText("Copy"), 2000);
+    }
+  };
+
+  // Create custom syntax highlighting styles with pure grey backgrounds
+  const customDarkStyle = {
+    ...atomOneDark,
+    hljs: {
+      ...atomOneDark.hljs,
+      background: theme === "dark" ? "#121212" : "#f5f5f5",
+      color: theme === "dark" ? "#e5e5e5" : "#1a1a1a",
+    },
+  };
+
+  const customLightStyle = {
+    ...atomOneLight,
+    hljs: {
+      ...atomOneLight.hljs,
+      background: "#f5f5f5",
+      color: "#1a1a1a",
+    },
+  };
+
+  return (
+    <div className={cn("w-full mx-auto", className)}>
+      <div className="relative inline-block w-full">
+        {/* Main container with sci-fi styling */}
+        <div
+          className={cn(
+            "relative w-full overflow-hidden",
+            "rounded border border-border",
+            "bg-card/50 backdrop-blur-sm",
+            "shadow-[0px_-82px_68px_-109px_inset_rgba(255,255,255,0.1),0px_98px_100px_-170px_inset_rgba(255,255,255,0.2),0px_4px_18px_-8px_inset_rgba(255,255,255,0.2),0px_1px_40px_-14px_inset_rgba(255,255,255,0.1)]"
+          )}
+        >
+          {/* Header */}
+          <div className="flex justify-between items-center px-6 py-4 border-b border-border bg-muted/30">
+            <span className="font-mono text-sm text-foreground/80">
+              {title}
+            </span>
+            <SciFiButton
+              onClick={handleCopy}
+              disabled={!!error || !code}
+              size="sm"
+            >
+              {copyText}
+            </SciFiButton>
+          </div>
+
+          {/* Content */}
+          {error ? (
+            <div className="p-8 text-center">
+              <div className="text-foreground/60 font-mono text-sm">
+                {error}
+              </div>
+            </div>
+          ) : (
+            <div
+              className="relative"
+              style={{
+                backgroundColor: theme === "dark" ? "#121212" : "#f5f5f5",
+              }}
+            >
+              <SyntaxHighlighter
+                language={language || "plaintext"}
+                style={theme === "dark" ? customDarkStyle : customLightStyle}
+                showLineNumbers={!!startingLineNumber}
+                startingLineNumber={startingLineNumber}
+                customStyle={{
+                  margin: 0,
+                  padding: "1.5rem",
+                  // MODIFIED: Changed the dark theme background color
+                  backgroundColor: theme === "dark" ? "#121212" : "#f5f5f5",
+                  fontSize: "12px",
+                  lineHeight: "1.5",
+                }}
+                codeTagProps={{
+                  style: {
+                    fontFamily:
+                      "'JetBrains Mono', 'Fira Code', 'Consolas', monospace",
+                  },
+                }}
+              >
+                {code || "Loading code..."}
+              </SyntaxHighlighter>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+</file>
+
+<file path="src/components/NpmCommand.tsx">
+import { useState } from 'react';
+import { cn } from '@/lib/utils';
+
+export default function NpmCommand() {
+  const [copied, setCopied] = useState(false);
+  const command = 'npx get-codeshare';
+
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(command);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      console.error('Failed to copy text: ', err);
+    }
+  };
+
+  return (
+    <div className="group relative inline-block">
+      <button
+        type="button"
+        onClick={handleCopy}
+        className={cn(
+          'relative inline-flex cursor-pointer items-center justify-center gap-2 overflow-hidden whitespace-nowrap font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent disabled:pointer-events-none disabled:opacity-50',
+          'rounded',
+          'shadow-[0px_-82px_68px_-109px_inset_rgba(255,255,255,0.3),0px_98px_100px_-170px_inset_rgba(255,255,255,0.6),0px_4px_18px_-8px_inset_rgba(255,255,255,0.6),0px_1px_40px_-14px_inset_rgba(255,255,255,0.3)]',
+          'border border-border hover:animate-[borderGlitch_0.6s_ease-in-out]',
+          'text-center font-normal tracking-[-0.18px]',
+          'active:scale-[0.98]',
+          'h-11 px-6 py-3 text-base',
+          'bg-foreground/5 text-foreground backdrop-blur-[50px]'
+        )}
+        aria-label="Copy command"
+      >
+        <div className="flex items-center gap-2">
+          <span className="text-foreground/60 select-none font-mono">$</span>
+          <span className="whitespace-nowrap font-mono">{command}</span>
+          {copied ? (
+            <svg className="w-4 h-4 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+            </svg>
+          ) : (
+            <svg className="w-4 h-4 text-foreground/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+          </svg>
+          )}
+        </div>
+      </button>
+
+      <div className="pointer-events-none absolute inset-0">
+        <div className="absolute top-0 left-0 h-2 w-2 group-hover:animate-[cornerGlitch_0.6s_ease-in-out]">
+          <div className="absolute top-0 left-0.5 h-0.5 w-1.5 origin-left bg-foreground" />
+          <div className="absolute top-0 left-0 h-2 w-0.5 origin-top bg-foreground" />
+        </div>
+
+        <div className="-scale-x-[1] absolute top-0 right-0 h-2 w-2 group-hover:animate-[cornerGlitch_0.6s_ease-in-out]">
+          <div className="absolute top-0 left-0.5 h-0.5 w-1.5 origin-left bg-foreground" />
+          <div className="absolute top-0 left-0 h-2 w-0.5 origin-top bg-foreground" />
+        </div>
+
+        <div className="-scale-y-[1] absolute bottom-0 left-0 h-2 w-2 group-hover:animate-[cornerGlitch_0.6s_ease-in-out]">
+          <div className="absolute top-0 left-0.5 h-0.5 w-1.5 origin-left bg-foreground" />
+          <div className="absolute top-0 left-0 h-2 w-0.5 origin-top bg-foreground" />
+        </div>
+
+        <div className="-scale-[1] absolute right-0 bottom-0 h-2 w-2 group-hover:animate-[cornerGlitch_0.6s_ease-in-out]">
+          <div className="absolute top-0 left-0.5 h-0.5 w-1.5 origin-left bg-foreground" />
+          <div className="absolute top-0 left-0 h-2 w-0.5 origin-top bg-foreground" />
+        </div>
+      </div>
+    </div>
+  );
+}
+</file>
+
+<file path="src/styles/globals.css">
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Press+Start+2P&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: 0 0% 100%;
+  --foreground: 0 0% 4%;
+  --card: 0 0% 100%;
+  --card-foreground: 0 0% 4%;
+  --border: 0 0% 90%;
+  --muted: 0 0% 96%;
+  --muted-foreground: 0 0% 45%;
+  --accent: 217 91% 60%;
+  --accent-foreground: 0 0% 100%;
+  --ring: 217 91% 60%;
+}
+
+.dark {
+  --background: 0 0% 4%;
+  --foreground: 0 0% 98%;
+  --card: 0 0% 6%;
+  --card-foreground: 0 0% 98%;
+  --border: 0 0% 15%;
+  --muted: 0 0% 9%;
+  --muted-foreground: 0 0% 64%;
+  --accent: 217 91% 60%;
+  --accent-foreground: 0 0% 98%;
+  --ring: 217 91% 60%;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: hsl(var(--background));
+  color: hsl(var(--foreground));
+  font-family: 'Space Grotesk', system-ui, sans-serif;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: hsl(var(--muted));
+}
+
+::-webkit-scrollbar-thumb {
+  background: hsl(var(--border));
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--muted-foreground));
+}
+
+.dark ::-webkit-scrollbar-track {
+  background: hsl(var(--muted));
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: hsl(var(--border));
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--muted-foreground));
+}
+
+/* Focus styles */
+*:focus-visible {
+  outline: 2px solid hsl(var(--accent));
+  outline-offset: 2px;
+}
+
+/* Selection styles */
+::selection {
+  background: hsl(var(--accent) / 0.1);
+  color: hsl(var(--foreground));
+}
+.compact-scrollbar::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+
+.compact-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.compact-scrollbar::-webkit-scrollbar-thumb {
+  background: hsl(var(--border) / 0.5);
+  border-radius: 2px;
+}
+
+.compact-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--border));
+}
+</file>
+
+<file path=".gitignore">
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# dependencies
+/node_modules
+/.pnp
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/versions
+.vscode
+.clinerules
+.cursorrules
+# testing
+/coverage
+
+# next.js
+/.next/
+/out/
+
+# production
+/build
+
+# misc
+.DS_Store
+*.pem
+
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# env files (can opt-in for committing if needed)
+.env*
+
+# vercel
+.vercel
+.cursor
+
+# typescript
+*.tsbuildinfo
+next-env.d.ts
+</file>
+
+<file path="package.json">
+{
+  "name": "codeshare-web",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --turbopack",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@radix-ui/react-slot": "^1.2.3",
+    "@vercel/kv": "^3.0.0",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "motion": "^12.23.12",
+    "nanoid": "^5.1.5",
+    "next": "15.4.6",
+    "react": "19.1.0",
+    "react-dom": "19.1.0",
+    "react-syntax-highlighter": "^15.6.1"
+  },
+  "devDependencies": {
+    "@eslint/eslintrc": "^3",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "@types/react-syntax-highlighter": "^15.5.13",
+    "autoprefixer": "^10.4.20",
+    "eslint": "^9",
+    "eslint-config-next": "15.4.6",
+    "postcss": "^8.4.49",
+    "tailwindcss": "^3.4.17",
+    "typescript": "^5"
+  }
+}
+</file>
+
+<file path="src/components/Layout.tsx">
+import Head from "next/head";
+import Link from "next/link";
+import { ReactNode } from "react";
+import { SciFiButton } from "./ui/scifi-button";
+import ThemeToggle from "./ThemeToggle";
+import { Wordmark } from "./Wordmark";
+
+const Logo = () => (
+  <div className="flex items-center gap-3">
+    <span
+      className="font-pixel text-2xl text-foreground leading-none"
+      style={{ fontFamily: "'Press Start 2P', monospace" }}
+    >
+      C
+    </span>
+    <span
+      className="text-xl text-foreground font-semibold tracking-wide"
+      style={{ fontFamily: "'Space Grotesk', sans-serif" }}
+    >
+      CODESHARE
+    </span>
+  </div>
+);
+
+const Header = () => (
+  <header className="sticky top-0 z-50 w-full border-b border-border bg-background/80 backdrop-blur-md">
+    <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="flex h-16 items-center justify-between">
+        <Link href="/" className="flex items-center">
+          <Logo />
+        </Link>
+
+        <nav className="hidden md:flex items-center space-x-6">
+          <Link
+            href="/docs"
+            className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+          >
+            Documentation
+          </Link>
+          <a
+            href="https://github.com/Sarthakischill/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+          >
+            GitHub
+          </a>
+          <ThemeToggle />
+          <SciFiButton asChild size="sm">
+            <a
+              href="https://marketplace.visualstudio.com/items?itemName=Sarthakischill.codeshare-by-sarthak"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Install Extension
+            </a>
+          </SciFiButton>
+        </nav>
+
+        {/* Mobile menu button */}
+        <div className="md:hidden flex items-center space-x-2">
+          <ThemeToggle />
+          <button className="p-2 text-muted-foreground hover:text-foreground">
+            <svg
+              className="w-6 h-6"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M4 6h16M4 12h16M4 18h16"
+              />
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+);
+
+const Footer = () => (
+  <footer className="bg-background border-t border-border pt-6">
+    <div className="container mx-auto px-4 sm:px-6 lg:px-8 pt-12 pb-0">
+      {/* Main Footer Content */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-12 max-w-6xl mx-auto">
+        {/* Logo and Description */}
+        <div className="md:col-span-1">
+          <div className="flex items-center gap-3 mb-4">
+            <span
+              className="font-pixel text-lg text-foreground leading-none"
+              style={{ fontFamily: "'Press Start 2P', monospace" }}
+            >
+              C
+            </span>
+            <span
+              className="text-lg text-foreground font-semibold tracking-wide"
+              style={{ fontFamily: "'Space Grotesk', sans-serif" }}
+            >
+              CODESHARE
+            </span>
+          </div>
+          <p className="text-sm text-muted-foreground leading-relaxed max-w-xs">
+            Fast af code sharing experience.
+          </p>
+        </div>
+
+        {/* Product Links */}
+        <div>
+          <h3 className="text-sm font-medium text-foreground mb-4">Product</h3>
+          <ul className="space-y-2">
+            <li>
+              <Link
+                href="/docs"
+                className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+              >
+                Documentation
+              </Link>
+            </li>
+            <li>
+              <a
+                href="https://marketplace.visualstudio.com/items?itemName=Sarthakischill.codeshare-by-sarthak"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+              >
+                VS Code Extension
+              </a>
+            </li>
+            <li>
+              <a
+                href="https://www.npmjs.com/package/get-codeshare"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+              >
+                CLI Tool
+              </a>
+            </li>
+          </ul>
+        </div>
+
+        {/* Company Links */}
+        <div>
+          <h3 className="text-sm font-medium text-foreground mb-4">Open Source</h3>
+          <ul className="space-y-2">
+            <li>
+              <a
+                href="https://github.com/Sarthakischill/codeshare-project"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+              >
+                GitHub
+              </a>
+            </li>
+            <li>
+              <a
+                href="https://github.com/Sarthakischill/codeshare-project/issues"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+              >
+                Issues
+              </a>
+            </li>
+            <li>
+              <a
+                href="https://github.com/Sarthakischill/codeshare-project/blob/main/CONTRIBUTING.md"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+              >
+                Contributing
+              </a>
+            </li>
+          </ul>
+        </div>
+
+        {/* Contact */}
+        <div>
+          <h3 className="text-sm font-medium text-foreground mb-4">Contact</h3>
+          <ul className="space-y-2">
+            <li>
+              <a
+                href="https://github.com/Sarthakischill"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-sm text-muted-foreground hover:text-foreground transition-colors flex items-center"
+              >
+                <svg
+                  className="w-4 h-4 mr-2"
+                  fill="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" />
+                </svg>
+                GitHub
+              </a>
+            </li>
+            <li>
+              <a
+                href="https://x.com/Sarthakhuh"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-sm text-muted-foreground hover:text-foreground transition-colors flex items-center"
+              >
+                <svg
+                  className="w-4 h-4 mr-2"
+                  fill="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+                </svg>
+                X
+              </a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    {/* Magic SVG Wordmark - Positioned to show 70%, with 30% below page */}
+    <div className="relative overflow-hidden border-t border-border">
+      <div className="transform translate-y-[40%]">
+        <Wordmark />
+      </div>
+    </div>
+  </footer>
+);
+
+interface LayoutProps {
+  children: ReactNode;
+  title: string;
+  description?: string;
+}
+
+export default function Layout({ children, title, description }: LayoutProps) {
+  return (
+    <>
+      <Head>
+        <title>{title}</title>
+        {description && <meta name="description" content={description} />}
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <link rel="icon" href="/favicon.svg" />
+      </Head>
+
+      <div className="min-h-screen bg-background relative transition-colors">
+        <Header />
+        <main className="flex-1 relative">{children}</main>
+        <Footer />
+      </div>
+    </>
+  );
+}
+</file>
+
+<file path="src/pages/s/[snippetId].tsx">
+import { GetServerSideProps, NextPage } from "next";
+import { kv } from "@vercel/kv";
+import Layout from "@/components/Layout";
+import CodeViewer from "@/components/CodeViewer";
+
+interface Snippet {
+  code: string;
+  language: string;
+}
+
+interface Props {
+  snippet: Snippet | null;
+  error?: string;
+}
+
+const SnippetPage: NextPage<Props> = ({ snippet, error }) => {
+  return (
+    <Layout
+      title={error ? "Codeshare - Error" : "Codeshare Snippet"}
+      description="A shared code snippet from Codeshare."
+    >
+      <div className="flex min-h-screen items-center justify-center py-8">
+        <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-center">
+            <CodeViewer
+              title={error ? "Error" : `Language: ${snippet?.language || "plaintext"}`}
+              code={snippet?.code || null}
+              language={snippet?.language || null}
+              error={error}
+              className="max-w-5xl"
+            />
+          </div>
+        </div>
+      </div>
+    </Layout>
+  );
+};
+
+export const getServerSideProps: GetServerSideProps = async (context) => {
+  const { snippetId } = context.params!;
+
+  if (typeof snippetId !== "string") {
+    return { props: { snippet: null, error: "Invalid snippet ID format." } };
+  }
+
+  try {
+    const snippet: Snippet | null = await kv.get(snippetId);
+
+    if (!snippet) {
+      return {
+        props: { snippet: null, error: "Snippet not found or has expired." },
+      };
+    }
+    return { props: { snippet } };
+  } catch (e: unknown) {
+    const errorMessage = e instanceof Error ? e.message : "Unknown error";
+    console.error(
+      `[SNIPPET PAGE] A fatal error occurred while retrieving from KV:`,
+      errorMessage
+    );
+    return { props: { snippet: null, error: "Failed to retrieve snippet." } };
+  }
+};
+
+export default SnippetPage;
+</file>
+
+<file path="src/pages/index.tsx">
+import Layout from "@/components/Layout";
+import Card from "@/components/Card";
+import FeatureCard from "@/components/FeatureCard";
+import { SciFiButton } from "@/components/ui/scifi-button";
+import NpmCommand from "@/components/NpmCommand";
+import { SciFiGridCard } from "@/components/SciFiGridCard";
+import CTA from "@/components/landing/cta";
+import { KeyboardShortcut } from "@/components/ui/keyboard-shortcut";
+import { CLITerminalDemo } from "@/components/demos/cli-terminal-demo";
+import { WebPlatformDemo } from "@/components/demos/web-platform-demo";
+import {
+  VSCodeIcon,
+  TerminalIcon,
+  WebIcon,
+  SpeedIcon,
+  SecurityIcon,
+  ShareIcon,
+} from "@/components/icons";
+
+const features = [
+  {
+    id: 1,
+    title: "VS Code Integration",
+    description:
+      "Right-click to generate links. Click links to open files directly in your editor.",
+    icon: VSCodeIcon,
+  },
+  {
+    id: 2,
+    title: "CLI Power",
+    description:
+      "Terminal-first workflow with the get-codeshare NPM package for any shell.",
+    icon: TerminalIcon,
+  },
+  {
+    id: 3,
+    title: "Web Fallback",
+    description:
+      "Beautiful web view for users without the extension installed.",
+    icon: WebIcon,
+  },
+  {
+    id: 4,
+    title: "Lightning Fast",
+    description:
+      "Instant link generation and seamless opening across all platforms.",
+    icon: SpeedIcon,
+  },
+  {
+    id: 5,
+    title: "Secure & Private",
+    description: "Your code stays private. Links expire automatically.",
+    icon: SecurityIcon,
+  },
+  {
+    id: 6,
+    title: "Universal Sharing",
+    description: "Share via Slack, email, or any platform. Works everywhere.",
+    icon: ShareIcon,
+  },
+];
+
+export default function HomePage() {
+  return (
+    <Layout
+      title="Codeshare - The Missing Link For Your Code"
+      description="Generate universal links to specific lines of code that open in VS Code for teammates and in the browser for everyone else."
+    >
+      <div className="container mx-auto px-4">
+        {/* --- Hero Section --- */}
+        <section className="text-center pt-24 pb-16 md:pt-32 md:pb-24">
+          <h1 className="font-sans text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight text-foreground">
+            The Missing Link
+          </h1>
+          <h2 className="text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight text-muted-foreground">
+            For Your Code.
+          </h2>
+          <p className="max-w-2xl mx-auto mt-6 text-lg md:text-xl text-muted-foreground leading-relaxed">
+            Generate universal links to specific lines of code. They open
+            directly in VS Code for teammates and fall back to a web view for
+            everyone else.
+          </p>
+          <div className="mt-12 flex flex-col sm:flex-row gap-6 justify-center items-center">
+            <SciFiButton asChild size="lg">
+              <a
+                href="https://marketplace.visualstudio.com/items?itemName=Sarthakischill.codeshare-by-sarthak"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Install
+              </a>
+            </SciFiButton>
+            <NpmCommand />
+          </div>
+        </section>
+
+        {/* --- Enhanced Feature Grid Section --- */}
+        <section className="pb-24 md:pb-32">
+          <div className="text-center mb-16">
+            <h2 className="font-sans text-3xl md:text-4xl font-bold text-foreground mb-4">
+              Everything you need for seamless code sharing
+            </h2>
+            <p className="max-w-xl mx-auto mt-4 text-lg text-muted-foreground">
+              A complete toolkit for modern developers.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 sm:gap-8 lg:grid-cols-3 lg:gap-10 xl:gap-12">
+            {features.map((feature) => (
+              <div className="flex" key={feature.id}>
+                <SciFiGridCard
+                  description={feature.description}
+                  icon={feature.icon}
+                  title={feature.title}
+                />
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* --- Feature Deep Dive Section --- */}
+        <section className="pb-24 md:pb-32">
+          <div className="text-center mb-16">
+            <h2 className="font-sans text-3xl md:text-4xl font-bold text-foreground">
+              One Tool, Every Workflow.
+            </h2>
+            <p className="max-w-xl mx-auto mt-4 text-lg text-muted-foreground">
+              A seamless experience, from your IDE to the browser, to your
+              terminal.
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-8">
+            <FeatureCard
+              title="VS Code Extension"
+              description="Generate links with a right-click or shortcut. Click a codeshare link and it opens the file directly in your local editor."
+              imageUrl="keyboard-shortcut"
+            >
+              <KeyboardShortcut animated={true} />
+            </FeatureCard>
+            <FeatureCard
+              title="Powerful CLI"
+              description="For those who live in the terminal. The get-codeshare NPM package brings context-aware link generation to any shell."
+              imageUrl="cli-terminal"
+            >
+              <CLITerminalDemo />
+            </FeatureCard>
+            <FeatureCard
+              title="Web Platform"
+              description="The hub that powers it all. Provides a beautiful, read-only web view for users without the extension."
+              imageUrl="web-platform" // <-- ADD THIS PROP
+            >
+              <WebPlatformDemo /> {/* <-- ADD THIS CHILD COMPONENT */}
+            </FeatureCard>
+          </div>
+        </section>
+
+        {/* --- How it Works Section --- */}
+        <section className="pb-24 md:pb-32">
+          <div className="text-center mb-16">
+            <h2 className="font-sans text-3xl md:text-4xl font-bold text-foreground">
+              How It Works
+            </h2>
+            <p className="max-w-xl mx-auto mt-4 text-lg text-muted-foreground">
+              Three simple steps to seamless code sharing.
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-8">
+            <Card className="text-center">
+              <div className="w-16 h-16 bg-foreground text-background rounded-lg flex items-center justify-center text-2xl font-bold mx-auto mb-6">
+                1
+              </div>
+              <h3 className="text-xl font-semibold text-foreground mb-3">
+                Select & Generate
+              </h3>
+              <p className="text-muted-foreground leading-relaxed">
+                Highlight code in VS Code or use the CLI to generate a universal
+                link.
+              </p>
+            </Card>
+            <Card className="text-center">
+              <div className="w-16 h-16 bg-foreground text-background rounded-lg flex items-center justify-center text-2xl font-bold mx-auto mb-6">
+                2
+              </div>
+              <h3 className="text-xl font-semibold text-foreground mb-3">
+                Share Anywhere
+              </h3>
+              <p className="text-muted-foreground leading-relaxed">
+                Send the link via Slack, email, or any communication platform.
+              </p>
+            </Card>
+            <Card className="text-center">
+              <div className="w-16 h-16 bg-foreground text-background rounded-lg flex items-center justify-center text-2xl font-bold mx-auto mb-6">
+                3
+              </div>
+              <h3 className="text-xl font-semibold text-foreground mb-3">
+                Smart Opening
+              </h3>
+              <p className="text-muted-foreground leading-relaxed">
+                Recipients with the extension see it in VS Code, others get a
+                web view.
+              </p>
+            </Card>
+          </div>
+        </section>
+
+        {/* --- Final CTA --- */}
+        <CTA />
+      </div>
+    </Layout>
+  );
+}
+</file>
+
+<file path="src/pages/l/[...data].tsx">
+import { GetServerSideProps, NextPage } from "next";
+import { useEffect, useState } from "react";
+import Layout from "@/components/Layout";
+import CodeViewer from "@/components/CodeViewer";
+
+interface LinkData {
+  repo: string;
+  branch: string;
+  file: string;
+  lines: string;
+  vscodeUri: string;
+  rawCodeUrl: string;
+}
+
+interface Props {
+  linkData: LinkData | null;
+  errorCode?: number;
+}
+
+const LinkPage: NextPage<Props> = ({ linkData, errorCode }) => {
+  const [fallbackVisible, setFallbackVisible] = useState(false);
+  const [code, setCode] = useState<string | null>(null);
+  const [fetchError, setFetchError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!linkData) return;
+
+    window.location.href = linkData.vscodeUri;
+
+    const timer = setTimeout(() => {
+      setFallbackVisible(true);
+      fetch(linkData.rawCodeUrl)
+        .then((res) => {
+          if (!res.ok) {
+            if (res.status === 404) {
+              return Promise.reject(
+                "Error: File not found. The repository may be private, the branch incorrect, or the file path may have changed."
+              );
+            }
+            return Promise.reject(`Could not fetch code (HTTP ${res.status})`);
+          }
+          return res.text();
+        })
+        .then((text) => {
+          const linesArr = text.split("\n");
+          const [start, end] = linkData.lines.split("-").map(Number);
+          const relevantLines = linesArr.slice(start - 1, end).join("\n");
+          setCode(relevantLines);
+          setFetchError(null);
+        })
+        .catch((error: Error) => {
+          setCode(null);
+          setFetchError(error.toString());
+        });
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [linkData]);
+
+  if (errorCode || !linkData) {
+    return (
+      <Layout title="Codeshare - Invalid Link" description="Invalid Codeshare link.">
+        <div className="flex min-h-screen items-center justify-center py-8">
+          <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div className="flex justify-center">
+              <CodeViewer
+                title="Error"
+                code={null}
+                language={null}
+                error="Invalid link format. Please generate a new one."
+                className="max-w-5xl"
+              />
+            </div>
+          </div>
+        </div>
+      </Layout>
+    );
+  }
+
+  // Loading / Redirecting state
+  if (!fallbackVisible) {
+    return (
+      <Layout title="Redirecting to VS Code..." description="Redirecting to VS Code...">
+        <div className="flex min-h-screen items-center justify-center py-8">
+          <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div className="flex justify-center">
+              <CodeViewer
+                title={`${linkData.file} (Lines ${linkData.lines})`}
+                code={null}
+                language={linkData.file.split('.').pop() || 'plaintext'}
+                error="Redirecting to VS Code..."
+                className="max-w-5xl"
+              />
+            </div>
+          </div>
+        </div>
+      </Layout>
+    );
+  }
+
+  // Fallback state
+  return (
+    <Layout
+      title={`Codeshare: ${linkData.file}`}
+      description={`Code from ${linkData.file} in repository ${linkData.repo}`}
+    >
+      <div className="flex min-h-screen items-center justify-center py-8">
+        <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-center">
+            <CodeViewer
+              title={`${linkData.file} (Lines ${linkData.lines})`}
+              code={code}
+              language={linkData.file.split('.').pop() || 'plaintext'}
+              startingLineNumber={parseInt(linkData.lines.split('-')[0] || '1')}
+              error={fetchError}
+              className="max-w-5xl"
+            />
+          </div>
+        </div>
+      </div>
+    </Layout>
+  );
+};
+
+// getServerSideProps remains unchanged
+export const getServerSideProps: GetServerSideProps = async (context) => {
+  const { data } = context.params!;
+  if (!Array.isArray(data) || data.length < 4) {
+    return { props: { linkData: null, errorCode: 400 } };
+  }
+
+  const [repoB64, branchB64, fileB64, lines] = data;
+  const repo = Buffer.from(repoB64, "base64url").toString("utf8");
+  const branch = Buffer.from(branchB64, "base64url").toString("utf8");
+  const file = Buffer.from(fileB64, "base64url").toString("utf8");
+  const extensionId = "Sarthakischill.codeshare-by-sarthak";
+  const vscodeUri = `vscode://${extensionId}/open?repo=${encodeURIComponent(
+    repo
+  )}&file=${encodeURIComponent(file)}&lines=${lines}`;
+  const repoPath = repo.replace("https://github.com/", "");
+  const rawCodeUrl = `https://raw.githubusercontent.com/${repoPath}/${branch}/${file}`;
+  const linkData: LinkData = {
+    repo,
+    branch,
+    file,
+    lines,
+    vscodeUri,
+    rawCodeUrl,
+  };
+
+  return {
+    props: {
+      linkData,
+    },
+  };
+};
+
+export default LinkPage;
+</file>
+
+<file path="src/pages/api/share.ts">
+// File: codeshare-web/src/pages/api/share.ts
+// Version: FINAL
+
+import { kv } from "@vercel/kv";
+import type { NextApiRequest, NextApiResponse } from "next";
+import { nanoid } from "nanoid";
+
+// CORS Middleware
+const allowCors =
+  (fn: (req: NextApiRequest, res: NextApiResponse) => Promise<void> | void) =>
+  async (req: NextApiRequest, res: NextApiResponse) => {
+    res.setHeader("Access-Control-Allow-Origin", "*");
+    res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
+    res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+    if (req.method === "OPTIONS") {
+      res.status(200).end();
+      return;
+    }
+    return await fn(req, res);
+  };
+
+async function handler(req: NextApiRequest, res: NextApiResponse) {
+  if (req.method !== "POST") {
+    return res.status(405).json({ error: "Method Not Allowed" });
+  }
+
+  try {
+    const { code, language = "plaintext" } = req.body;
+
+    if (!code || typeof code !== "string" || code.trim() === "") {
+      return res.status(400).json({ error: "Code snippet cannot be empty." });
+    }
+
+    const snippetData = { code, language };
+    const snippetId = nanoid(8);
+
+    // --- THE FINAL FIX ---
+    // Pass the JavaScript OBJECT directly to kv.set.
+    // Let the @vercel/kv library handle the serialization.
+    await kv.set(snippetId, snippetData, { ex: 86400 });
+    // --- END OF FIX ---
+
+    return res.status(200).json({ id: snippetId });
+  } catch (error: unknown) {
+    const errorMessage =
+      error instanceof Error ? error.message : "Unknown error";
+    console.error("[API Error] The /api/share route failed:", errorMessage);
+    return res
+      .status(500)
+      .json({ error: "Failed to create snippet due to a server error." });
+  }
+}
+
+export default allowCors(handler);
+</file>
+
+</files>

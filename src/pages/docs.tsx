@@ -3,8 +3,8 @@ import { SciFiButton } from "@/components/ui/scifi-button";
 
 export default function Documentation() {
   return (
-    <Layout 
-      title="Documentation - Codeshare" 
+    <Layout
+      title="Documentation - Codeshare"
       description="Learn how to use Codeshare for fast code sharing"
     >
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-16">
@@ -15,7 +15,8 @@ export default function Documentation() {
               Documentation
             </h1>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              Everything you need to know about using Codeshare for lightning-fast code sharing.
+              Everything you need to know about using Codeshare for
+              lightning-fast code sharing.
             </p>
           </div>
 
@@ -23,17 +24,17 @@ export default function Documentation() {
           <div className="bg-card border border-border rounded-lg p-8 text-center">
             <div className="mb-6">
               <div className="w-16 h-16 mx-auto mb-4 bg-primary/10 rounded-full flex items-center justify-center">
-                <svg 
-                  className="w-8 h-8 text-primary" 
-                  fill="none" 
-                  stroke="currentColor" 
+                <svg
+                  className="w-8 h-8 text-primary"
+                  fill="none"
+                  stroke="currentColor"
                   viewBox="0 0 24 24"
                 >
-                  <path 
-                    strokeLinecap="round" 
-                    strokeLinejoin="round" 
-                    strokeWidth={2} 
-                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" 
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
                   />
                 </svg>
               </div>
@@ -41,8 +42,9 @@ export default function Documentation() {
                 Documentation Coming Soon
               </h2>
               <p className="text-muted-foreground mb-6">
-                We&apos;re working hard to create comprehensive documentation for Codeshare. 
-                In the meantime, check out our GitHub repository for setup instructions and examples.
+                We&apos;re working hard to create comprehensive documentation
+                for Codeshare. In the meantime, check out our GitHub repository
+                for setup instructions and examples.
               </p>
             </div>
 

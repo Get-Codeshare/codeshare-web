@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, ReactNode } from "react";
 import SyntaxHighlighter from "react-syntax-highlighter";
 import {
   atomOneDark,
@@ -15,7 +15,7 @@ interface CodeViewerProps {
   code: string | null;
   language: string | null;
   startingLineNumber?: number;
-  error?: string | null;
+  error?: ReactNode | null;
   className?: string;
 }
 
@@ -38,22 +38,15 @@ export default function CodeViewer({
     }
   };
 
-  // Create custom syntax highlighting styles with pure grey backgrounds
-  const customDarkStyle = {
-    ...atomOneDark,
-    hljs: {
-      ...atomOneDark.hljs,
-      background: theme === "dark" ? "#1a1a1a" : "#f5f5f5",
-      color: theme === "dark" ? "#e5e5e5" : "#1a1a1a",
-    },
-  };
+  const isDark = theme === "dark";
+  const backgroundColor = isDark ? "#121212" : "#f5f5f5";
 
-  const customLightStyle = {
-    ...atomOneLight,
+  const customSyntaxStyle = {
+    ...isDark ? atomOneDark : atomOneLight,
     hljs: {
-      ...atomOneLight.hljs,
-      background: "#f5f5f5",
-      color: "#1a1a1a",
+      ...(isDark ? atomOneDark.hljs : atomOneLight.hljs),
+      background: backgroundColor,
+      color: isDark ? "#e5e5e5" : "#1a1a1a",
     },
   };
 
@@ -94,20 +87,20 @@ export default function CodeViewer({
             <div
               className="relative"
               style={{
-                backgroundColor: theme === "dark" ? "#1a1a1a" : "#f5f5f5",
+                backgroundColor: backgroundColor,
               }}
             >
               <SyntaxHighlighter
                 language={language || "plaintext"}
-                style={theme === "dark" ? customDarkStyle : customLightStyle}
+                style={customSyntaxStyle}
                 showLineNumbers={!!startingLineNumber}
                 startingLineNumber={startingLineNumber}
                 customStyle={{
                   margin: 0,
-                  padding: "2rem",
-                  backgroundColor: theme === "dark" ? "#1a1a1a" : "#f5f5f5",
-                  fontSize: "14px",
-                  lineHeight: "1.6",
+                  padding: "1.5rem",
+                  backgroundColor: backgroundColor,
+                  fontSize: "12px",
+                  lineHeight: "1.5",
                 }}
                 codeTagProps={{
                   style: {

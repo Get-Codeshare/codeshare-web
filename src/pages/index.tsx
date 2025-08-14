@@ -5,6 +5,9 @@ import { SciFiButton } from "@/components/ui/scifi-button";
 import NpmCommand from "@/components/NpmCommand";
 import { SciFiGridCard } from "@/components/SciFiGridCard";
 import CTA from "@/components/landing/cta";
+import { CLITerminalDemo } from "@/components/demos/cli-terminal-demo";
+import { KeyboardShortcutDemo } from "@/components/demos/keyboard-shortcut-demo";
+import { WebPlatformImageDemo } from "@/components/demos/web-platform-image-demo";
 import {
   VSCodeIcon,
   TerminalIcon,
@@ -131,17 +134,24 @@ export default function HomePage() {
             <FeatureCard
               title="VS Code Extension"
               description="Generate links with a right-click or shortcut. Click a codeshare link and it opens the file directly in your local editor."
-              imageUrl="/feature-vscode.png"
-            />
+              imageUrl="keyboard-shortcut"
+            >
+              <KeyboardShortcutDemo />
+            </FeatureCard>
             <FeatureCard
               title="Powerful CLI"
               description="For those who live in the terminal. The get-codeshare NPM package brings context-aware link generation to any shell."
-              imageUrl="/feature-cli.png"
-            />
+              imageUrl="cli-terminal"
+            >
+              <CLITerminalDemo />
+            </FeatureCard>
             <FeatureCard
               title="Web Platform"
               description="The hub that powers it all. Provides a beautiful, read-only web view for users without the extension."
-            />
+              imageUrl="web-platform"
+            >
+              <WebPlatformImageDemo />
+            </FeatureCard>
           </div>
         </section>
 
