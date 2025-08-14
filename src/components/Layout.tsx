@@ -62,7 +62,7 @@ const Header = () => {
               Documentation
             </Link>
             <a
-              href="https://github.com/Sarthakischill/codeshare-project"
+              href="https://github.com/Get-Codeshare"
               target="_blank"
               rel="noopener noreferrer"
               className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
@@ -135,7 +135,7 @@ const Header = () => {
               Documentation
             </Link>
             <a
-              href="https://github.com/Sarthakischill/codeshare-project"
+              href="https://github.com/Get-Codeshare"
               target="_blank"
               rel="noopener noreferrer"
               className="font-medium text-muted-foreground hover:text-foreground transition-colors"
@@ -228,7 +228,7 @@ const Footer = () => (
           <ul className="space-y-2">
             <li>
               <a
-                href="https://github.com/Sarthakischill/codeshare-project"
+                href="https://github.com/Get-Codeshare"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-sm text-muted-foreground hover:text-foreground transition-colors"
@@ -238,7 +238,7 @@ const Footer = () => (
             </li>
             <li>
               <a
-                href="https://github.com/Sarthakischill/codeshare-project/issues"
+                href="https://github.com/Get-Codeshare"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-sm text-muted-foreground hover:text-foreground transition-colors"
@@ -248,7 +248,7 @@ const Footer = () => (
             </li>
             <li>
               <a
-                href="https://github.com/Sarthakischill/codeshare-project/blob/main/CONTRIBUTING.md"
+                href="https://github.com/Get-Codeshare"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-sm text-muted-foreground hover:text-foreground transition-colors"
@@ -265,7 +265,7 @@ const Footer = () => (
           <ul className="space-y-2">
             <li>
               <a
-                href="https://github.com/Sarthakischill"
+                href="https://github.com/Get-Codeshare"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-sm text-muted-foreground hover:text-foreground transition-colors flex items-center"

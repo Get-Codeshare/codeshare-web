@@ -51,7 +51,7 @@ export default function Documentation() {
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <SciFiButton asChild>
                 <a
-                  href="https://github.com/Sarthakischill/codeshare-project"
+                  href="https://github.com/Get-Codeshare"
                   target="_blank"
                   rel="noopener noreferrer"
                 >
@@ -114,7 +114,7 @@ export default function Documentation() {
                 Help us improve Codeshare by contributing to the project.
               </p>
               <a
-                href="https://github.com/Sarthakischill/codeshare-project/blob/main/CONTRIBUTING.md"
+                href="https://github.com/Get-Codeshare"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-primary hover:underline text-sm"
