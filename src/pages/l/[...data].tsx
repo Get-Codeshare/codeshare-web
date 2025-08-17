@@ -1,3 +1,6 @@
+// File: src/pages/l/[...data].tsx
+// Version: MODIFIED
+
 import { GetServerSideProps, NextPage } from "next";
 import { useEffect, useState, ReactNode } from "react";
 import Layout from "@/components/Layout";
@@ -16,8 +19,9 @@ interface LinkData {
   branch: string;
   file: string;
   lines: string;
-  vscodeUri: string; // Keep as a base
+  vscodeUri: string;
   rawCodeUrl: string;
+  githubUrl: string; // Added for convenience
 }
 
 interface Props {
@@ -26,7 +30,7 @@ interface Props {
 }
 
 const LinkPage: NextPage<Props> = ({ linkData, errorCode }) => {
-  const [fallbackVisible, setFallbackVisible] = useState(false);
+  const [pageState, setPageState] = useState<'loading' | 'ide_choice' | 'redirecting'>('loading');
   const [code, setCode] = useState<string | null>(null);
   const [fetchError, setFetchError] = useState<ReactNode | null>(null);
 
@@ -34,42 +38,37 @@ const LinkPage: NextPage<Props> = ({ linkData, errorCode }) => {
     return baseUri.replace('vscode://', `${protocol}://`);
   };
 
+  // Main effect to control the page flow
   useEffect(() => {
     if (!linkData) return;
 
-    // Check for a saved preference
     const preferredIde = localStorage.getItem('preferredIde') as IdeProtocol | null;
-    const targetUri = preferredIde ? getIdeUri(preferredIde, linkData.vscodeUri) : linkData.vscodeUri;
-    
-    window.location.href = targetUri;
 
-    const redirectTimer = setTimeout(() => {
-      setFallbackVisible(true);
+    if (preferredIde) {
+      setPageState('redirecting');
+      window.location.href = getIdeUri(preferredIde, linkData.vscodeUri);
+    } else {
+      setPageState('ide_choice');
+    }
+  }, [linkData]);
 
-      // --- TIMEOUT IMPLEMENTATION ---
+  // Effect for fetching code when in the redirecting/fallback state
+  useEffect(() => {
+    if (pageState !== 'redirecting' || !linkData) return;
+
+    const fetchTimer = setTimeout(() => {
       const controller = new AbortController();
       const signal = controller.signal;
+      const fetchTimeoutId = setTimeout(() => controller.abort(), 8000);
 
-      // Set a timeout to abort the fetch request (e.g., 8 seconds)
-      const fetchTimeoutId = setTimeout(() => {
-        controller.abort();
-      }, 8000);
-
-      fetch(linkData.rawCodeUrl, { signal }) // Pass the signal to fetch
+      fetch(linkData.rawCodeUrl, { signal })
         .then((res) => {
-          // Clear the timeout if the request succeeds
           clearTimeout(fetchTimeoutId);
           if (!res.ok) {
             if (res.status === 404) {
-              return Promise.reject(
-                new Error(
-                  "Error: File not found. The repository may be private, the branch incorrect, or the file path may have changed."
-                )
-              );
+              return Promise.reject(new Error("Error: File not found. The repository may be private, the branch incorrect, or the file path may have changed."));
             }
-            return Promise.reject(
-              new Error(`Could not fetch code (HTTP ${res.status})`)
-            );
+            return Promise.reject(new Error(`Could not fetch code (HTTP ${res.status})`));
           }
           return res.text();
         })
@@ -81,50 +80,33 @@ const LinkPage: NextPage<Props> = ({ linkData, errorCode }) => {
           setFetchError(null);
         })
         .catch((error: Error) => {
-          // Clear the timeout in case of other errors too
           clearTimeout(fetchTimeoutId);
           setCode(null);
-
-          // Check if the error was due to the timeout
           if (error.name === 'AbortError') {
             setFetchError("The request to fetch the code timed out. The server may be slow or unavailable.");
             return;
           }
-          
-          const repoPath = linkData.repo.replace("https://github.com/", "");
-          const githubUrl = `https://github.com/${repoPath}/blob/${
-            linkData.branch
-          }/${linkData.file}#L${linkData.lines.split("-")[0]}`;
-
           const errorMessage = (
             <p>
               {error.message}
-              <br />
-              <br />
+              <br /><br />
               You can try{" "}
-              <a
-                href={githubUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="underline hover:text-foreground"
-              >
+              <a href={linkData.githubUrl} target="_blank" rel="noopener noreferrer" className="underline hover:text-foreground">
                 viewing the file on GitHub
-              </a>
-              .
+              </a>.
             </p>
           );
           setFetchError(errorMessage);
         });
     }, 500);
 
-    return () => clearTimeout(redirectTimer);
-  }, [linkData]);
-  
+    return () => clearTimeout(fetchTimer);
+  }, [pageState, linkData]);
+
   const handleIdeChoice = (protocol: IdeProtocol) => {
     if (!linkData) return;
-    // Save the user's choice
     localStorage.setItem('preferredIde', protocol);
-    // Attempt to redirect immediately
+    setPageState('redirecting');
     window.location.href = getIdeUri(protocol, linkData.vscodeUri);
   };
 
@@ -134,13 +116,7 @@ const LinkPage: NextPage<Props> = ({ linkData, errorCode }) => {
         <div className="flex min-h-screen items-center justify-center py-8">
           <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
             <div className="flex justify-center">
-              <CodeViewer
-                title="Error"
-                code={null}
-                language={null}
-                error="Invalid link format. Please generate a new one."
-                className="max-w-5xl"
-              />
+              <CodeViewer title="Error" code={null} language={null} error="Invalid link format. Please generate a new one." className="max-w-5xl" />
             </div>
           </div>
         </div>
@@ -148,48 +124,58 @@ const LinkPage: NextPage<Props> = ({ linkData, errorCode }) => {
     );
   }
 
-  // Loading / Redirecting state
-  if (!fallbackVisible) {
+  if (pageState === 'loading') {
     return (
-      <Layout title="Redirecting to VS Code..." description="Redirecting to VS Code...">
-        <div className="flex min-h-screen items-center justify-center py-8">
-          <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
-            <div className="flex justify-center">
-              <CodeViewer
-                title={`${linkData.file} (Lines ${linkData.lines})`}
-                code={null}
-                language={linkData.file.split('.').pop() || 'plaintext'}
-                error="Redirecting to VS Code..."
-                className="max-w-5xl"
-              />
-            </div>
-          </div>
+      <Layout title="Loading..." description="Loading Codeshare link...">
+        <div className="flex min-h-screen items-center justify-center">
+            <p className="text-muted-foreground animate-pulse">Initializing...</p>
         </div>
       </Layout>
     );
   }
 
-  // Fallback state
-  return (
-    <Layout
-      title={`Codeshare: ${linkData.file}`}
-      description={`Code from ${linkData.file} in repository ${linkData.repo}`}
-    >
-      <div className="flex min-h-screen items-center justify-center py-8">
-        <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col items-center gap-8">
-            <div className="text-center">
-              <h2 className="text-2xl font-bold text-foreground mb-2">Editor not opening?</h2>
-              <p className="text-muted-foreground mb-4">Choose your preferred editor to open this link and we&apos;ll remember it for next time.</p>
-              <div className="flex flex-wrap justify-center gap-4">
+  if (pageState === 'ide_choice') {
+    return (
+      <Layout title="Choose your Editor" description="Select your preferred editor for Codeshare links.">
+        <div className="flex min-h-screen items-center justify-center py-8">
+          <div className="mx-auto w-full max-w-2xl px-4 sm:px-6 lg:px-8">
+            <div className="bg-card border border-border rounded-lg p-8 text-center shadow-lg animate-fade-in">
+              <h2 className="text-2xl font-bold text-foreground mb-2">Welcome to Codeshare!</h2>
+              <p className="text-muted-foreground mb-6">Choose your preferred editor for opening links. We&apos;ll remember your choice for next time.</p>
+              <div className="flex flex-col sm:flex-row justify-center gap-4">
                 {ideOptions.map(ide => (
-                  <SciFiButton key={ide.id} onClick={() => handleIdeChoice(ide.id)}>
-                    Open in {ide.name}
+                  <SciFiButton key={ide.id} onClick={() => handleIdeChoice(ide.id)} size="lg">
+                    Continue with {ide.name}
                   </SciFiButton>
                 ))}
               </div>
+              <p className="text-xs text-muted-foreground mt-6">This will attempt to open the link directly in your local editor.</p>
             </div>
-            
+          </div>
+        </div>
+      </Layout>
+    );
+  }
+
+  return (
+    <Layout title={`Codeshare: ${linkData.file}`} description={`Code from ${linkData.file} in repository ${linkData.repo}`}>
+      <div className="flex min-h-screen items-center justify-center py-8">
+        <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col items-center gap-8">
+            <div className="text-center animate-fade-in">
+              <h2 className="text-2xl font-bold text-foreground mb-2">Editor not opening?</h2>
+              <p className="text-muted-foreground mb-4">Choose your editor to try again, or view the file on GitHub.</p>
+              <div className="flex flex-wrap justify-center gap-4">
+                {ideOptions.map(ide => (
+                  <SciFiButton key={ide.id} onClick={() => window.location.href = getIdeUri(ide.id, linkData.vscodeUri)}>
+                    Open in {ide.name}
+                  </SciFiButton>
+                ))}
+                <SciFiButton asChild variant="outline">
+                    <a href={linkData.githubUrl} target="_blank" rel="noopener noreferrer">View on GitHub</a>
+                </SciFiButton>
+              </div>
+            </div>
             <CodeViewer
               title={`${linkData.file} (Lines ${linkData.lines})`}
               code={code}
@@ -206,35 +192,25 @@ const LinkPage: NextPage<Props> = ({ linkData, errorCode }) => {
 };
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
-  const { data } = context.params!;
-  if (!Array.isArray(data) || data.length < 4) {
-    return { props: { linkData: null, errorCode: 400 } };
-  }
+    const { data } = context.params!;
+    if (!Array.isArray(data) || data.length < 4) {
+        return { props: { linkData: null, errorCode: 400 } };
+    }
 
-  const [repoB64, branchB64, fileB64, lines] = data;
-  const repo = Buffer.from(repoB64, "base64url").toString("utf8");
-  const branch = Buffer.from(branchB64, "base64url").toString("utf8");
-  const file = Buffer.from(fileB64, "base64url").toString("utf8");
-  const extensionId = "Sarthakischill.codeshare-by-sarthak";
-  const vscodeUri = `vscode://${extensionId}/open?repo=${encodeURIComponent(
-    repo
-  )}&file=${encodeURIComponent(file)}&lines=${lines}`;
-  const repoPath = repo.replace("https://github.com/", "");
-  const rawCodeUrl = `https://raw.githubusercontent.com/${repoPath}/${branch}/${file}`;
-  const linkData: LinkData = {
-    repo,
-    branch,
-    file,
-    lines,
-    vscodeUri,
-    rawCodeUrl,
-  };
+    const [repoB64, branchB64, fileB64, lines] = data;
+    const repo = Buffer.from(repoB64, "base64url").toString("utf8");
+    const branch = Buffer.from(branchB64, "base64url").toString("utf8");
+    const file = Buffer.from(fileB64, "base64url").toString("utf8");
 
-  return {
-    props: {
-      linkData,
-    },
-  };
+    const extensionId = "Sarthakischill.codeshare-by-sarthak";
+    const vscodeUri = `vscode://${extensionId}/open?repo=${encodeURIComponent(repo)}&file=${encodeURIComponent(file)}&lines=${lines}`;
+    const repoPath = repo.replace("https://github.com/", "");
+    const rawCodeUrl = `https://raw.githubusercontent.com/${repoPath}/${branch}/${file}`;
+    const githubUrl = `https://github.com/${repoPath}/blob/${branch}/${file}#L${lines.split("-")[0]}`;
+
+    const linkData: LinkData = { repo, branch, file, lines, vscodeUri, rawCodeUrl, githubUrl };
+
+    return { props: { linkData } };
 };
 
 export default LinkPage;

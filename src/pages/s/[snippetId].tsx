@@ -1,11 +1,19 @@
+// File: src/pages/s/[snippetId].tsx
+// Version: MODIFIED
+
 import { GetServerSideProps, NextPage } from "next";
 import { kv } from "@vercel/kv";
 import Layout from "@/components/Layout";
 import CodeViewer from "@/components/CodeViewer";
+import { SciFiButton } from "@/components/ui/scifi-button";
 
 interface Snippet {
   code: string;
   language: string;
+  repo?: string;
+  branch?: string;
+  file?: string;
+  lines?: string;
 }
 
 interface Props {
@@ -14,6 +22,13 @@ interface Props {
 }
 
 const SnippetPage: NextPage<Props> = ({ snippet, error }) => {
+  const hasRepoInfo = snippet && snippet.repo && snippet.branch && snippet.file && snippet.lines;
+  let githubUrl = "";
+  if (hasRepoInfo) {
+      const repoPath = snippet.repo!.replace("https://github.com/", "");
+      githubUrl = `https://github.com/${repoPath}/blob/${snippet.branch}/${snippet.file}#L${snippet.lines!.split("-")[0]}`;
+  }
+
   return (
     <Layout
       title={error ? "Codeshare - Error" : "Codeshare Snippet"}
@@ -21,7 +36,7 @@ const SnippetPage: NextPage<Props> = ({ snippet, error }) => {
     >
       <div className="flex min-h-screen items-center justify-center py-8">
         <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-center">
+          <div className="flex flex-col items-center gap-6">
             <CodeViewer
               title={error ? "Error" : `Language: ${snippet?.language || "plaintext"}`}
               code={snippet?.code || null}
@@ -29,6 +44,19 @@ const SnippetPage: NextPage<Props> = ({ snippet, error }) => {
               error={error}
               className="max-w-5xl"
             />
+            {hasRepoInfo ? (
+               <SciFiButton asChild>
+                <a href={githubUrl} target="_blank" rel="noopener noreferrer">
+                  View on GitHub
+                </a>
+              </SciFiButton>
+            ) : (
+                <div className="relative" title="This snippet is not linked to a GitHub repository.">
+                    <SciFiButton disabled>
+                      View on GitHub
+                    </SciFiButton>
+                </div>
+            )}
           </div>
         </div>
       </div>

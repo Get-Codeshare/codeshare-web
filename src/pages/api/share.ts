@@ -1,5 +1,5 @@
 // File: codeshare-web/src/pages/api/share.ts
-// Version: FINAL
+// Version: MODIFIED
 
 import { kv } from "@vercel/kv";
 import type { NextApiRequest, NextApiResponse } from "next";
@@ -25,23 +25,34 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
   }
 
   try {
-    const { code, language = "plaintext" } = req.body;
+    const {
+      code,
+      language = "plaintext",
+      repo,
+      branch,
+      file,
+      lines,
+    } = req.body;
 
     if (!code || typeof code !== "string" || code.trim() === "") {
       return res.status(400).json({ error: "Code snippet cannot be empty." });
     }
 
-    const snippetData = { code, language };
+    const snippetData = {
+      code,
+      language,
+      repo,
+      branch,
+      file,
+      lines,
+    };
     const snippetId = nanoid(8);
 
-    // --- THE FINAL FIX ---
-    // Pass the JavaScript OBJECT directly to kv.set.
-    // Let the @vercel/kv library handle the serialization.
     await kv.set(snippetId, snippetData, { ex: 86400 });
-    // --- END OF FIX ---
 
     return res.status(200).json({ id: snippetId });
-  } catch (error: unknown) {
+  } catch (error: unknown)
+   {
     const errorMessage =
       error instanceof Error ? error.message : "Unknown error";
     console.error("[API Error] The /api/share route failed:", errorMessage);
